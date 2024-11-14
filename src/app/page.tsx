@@ -1,101 +1,223 @@
 import Image from "next/image";
+import React from 'react';
+import {
+  Button, Tooltip, Popover, Menubar, Tabs, Accordion, Toggle, Avatar, Skeleton,
+  Input, Alert, Sidebar, Card, Carousel, Checkbox, Switch, Slider, Progress, Toast, Radio, Dialog, DropdownMenu, Breadcrumb
+} from '@/components/ui';
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="space-y-8">
+      {/* Buttons, Tooltip, Popover, Menubar, Tabs, Accordion, Toggle, Avatar, Skeleton */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Buttons</h2>
+        <div className="flex space-x-4">
+          <Button>Primary</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="destructive">Destructive</Button>
+          <Button disabled>Disabled</Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Tooltip</h2>
+        <Tooltip content="This is a tooltip">
+          <Button>Hover me</Button>
+        </Tooltip>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Popover</h2>
+        <Popover
+          trigger="click"
+          content={
+            <div className="p-4 space-y-2">
+              <p>This is a popover</p>
+              <Button variant="secondary">Action</Button>
+            </div>
+          }
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <Button>Open Popover</Button>
+        </Popover>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Menubar</h2>
+        <Menubar
+          items={[
+            { label: 'File', menu: [{ label: 'New' }, { label: 'Open' }, { label: 'Save' }] },
+            { label: 'Edit', menu: [{ label: 'Copy' }, { label: 'Paste' }, { label: 'Delete' }] },
+            { label: 'Help', menu: [{ label: 'Documentation' }, { label: 'Contact' }] },
+          ]}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Tabs</h2>
+        <Tabs
+          tabs={[
+            { label: 'Tab 1', content: <div>Content for Tab 1</div> },
+            { label: 'Tab 2', content: <div>Content for Tab 2</div> },
+            { label: 'Tab 3', content: <div>Content for Tab 3</div> },
+          ]}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Accordion</h2>
+        <Accordion>
+          <Accordion.Item value="item-1">
+            <Accordion.Header>Accordion Item 1</Accordion.Header>
+            <Accordion.Content>Content for Accordion Item 1</Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="item-2">
+            <Accordion.Header>Accordion Item 2</Accordion.Header>
+            <Accordion.Content>Content for Accordion Item 2</Accordion.Content>
+          </Accordion.Item>
+        </Accordion>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Toggle</h2>
+        <Toggle>Toggle me</Toggle>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Avatar</h2>
+        <div className="flex space-x-4">
+          <Avatar
+            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&h=256&q=80"
+            alt="Avatar"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <Avatar
+            src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&h=256&q=80"
+            alt="Avatar"
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          <Avatar
+            src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&h=256&q=80"
+            alt="Avatar"
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Skeleton</h2>
+        <div className="flex items-center space-x-4">
+          <Skeleton className="w-24 h-24" />
+          <Skeleton className="w-32 h-8" />
+          <Skeleton className="w-40 h-6" />
+        </div>
+      </div>
+
+      {/* Input, Alert, Sidebar, Card, Carousel, Checkbox, Switch, Slider, Progress, Toast, Radio */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Input</h2>
+        <Input placeholder="Enter text" />
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Alert</h2>
+        <Alert variant="success">Success alert</Alert>
+        <Alert variant="warning">Warning alert</Alert>
+        <Alert variant="danger">Danger alert</Alert>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Sidebar</h2>
+        <Sidebar>
+          <Sidebar.Item href="#" label="Home" />
+          <Sidebar.Item href="#" label="About" />
+          <Sidebar.Item href="#" label="Contact" />
+        </Sidebar>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Card</h2>
+        <Card>
+          <Card.Header>
+            <Card.Title>Card Title</Card.Title>
+            <Card.Description>Card description</Card.Description>
+          </Card.Header>
+          <Card.Content>Card content</Card.Content>
+          <Card.Footer>Card footer</Card.Footer>
+        </Card>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Carousel</h2>
+        <Carousel>
+          <Carousel.Item>Slide 1</Carousel.Item>
+          <Carousel.Item>Slide 2</Carousel.Item>
+          <Carousel.Item>Slide 3</Carousel.Item>
+        </Carousel>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Checkbox</h2>
+        <Checkbox>Checkbox label</Checkbox>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Switch</h2>
+        <Switch>Switch label</Switch>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Slider</h2>
+        <Slider defaultValue={50} />
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Progress</h2>
+        <Progress value={70} />
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Toast</h2>
+        <Toast>Toast message</Toast>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Radio</h2>
+        <Radio name="group1" value="option1">Option 1</Radio>
+        <Radio name="group1" value="option2">Option 2</Radio>
+      </div>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Dialog</h2>
+        <Dialog>
+          <Dialog.Title>Dialog Title</Dialog.Title>
+          <Dialog.Description>Dialog description</Dialog.Description>
+          <Dialog.Content>Dialog content</Dialog.Content>
+          <Dialog.Actions>
+            <Button variant="secondary">Cancel</Button>
+            <Button>Save</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">DropdownMenu</h2>
+        <DropdownMenu
+          trigger={<Button>Open Dropdown</Button>}
+          items={[
+            { label: 'Option 1', onClick: () => { } },
+            { label: 'Option 2', onClick: () => { } },
+            { label: 'Option 3', onClick: () => { } },
+          ]}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Breadcrumbs</h2>
+        <Breadcrumb
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'About', href: '/about' },
+            { label: 'Contact', href: '/contact' },
+          ]}
+        />
+      </div>
     </div>
+
   );
 }
