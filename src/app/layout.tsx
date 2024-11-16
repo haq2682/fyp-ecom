@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar";
 import Navbar from "@/components/ui/navbar";
+import Footer from "@/components/ui/footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,7 +34,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
@@ -42,6 +43,7 @@ export default function RootLayout({
             <SidebarInset className="flex flex-col flex-1 h-screen overflow-auto">
               <Navbar />
               {children}
+              <Footer />
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
