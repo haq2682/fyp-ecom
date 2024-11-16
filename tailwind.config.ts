@@ -9,6 +9,10 @@ export default {
 	],
 	theme: {
 		extend: {
+			fontFamily: {
+				sans: ['var(--font-exo)'],
+				mono: ['var(--font-geistMono)']
+			},
 			colors: {
 				background: 'var(--background)',
 				foreground: 'var(--foreground)',
