@@ -28,9 +28,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
-    <html lang="en">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
         <ThemeProvider
           attribute="class"
@@ -40,9 +39,11 @@ export default function RootLayout({
         >
           <SidebarProvider defaultOpen={false}>
             <AppSidebar />
-            <SidebarInset className="flex flex-col flex-1 h-screen overflow-auto">
+            <SidebarInset>
               <Navbar />
-              {children}
+              <div className="mx-auto container">
+                {children}
+              </div>
               <Footer />
             </SidebarInset>
           </SidebarProvider>

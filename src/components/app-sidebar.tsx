@@ -1,4 +1,6 @@
+"use client";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { IoClose } from "react-icons/io5";
 
 import {
     Sidebar,
@@ -9,6 +11,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar"
 
 // Menu items.
@@ -41,11 +44,23 @@ const items = [
 ]
 
 export function AppSidebar() {
+    const { toggleSidebar } = useSidebar();
     return (
         <Sidebar variant="inset">
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Application</SidebarGroupLabel>
+                    <SidebarGroupLabel>
+                        <div className="flex justify-between w-full">
+                            <div>
+                                <h1>
+                                    Application
+                                </h1>
+                            </div>
+                            <div onClick={toggleSidebar}>
+                                <IoClose size={18} />
+                            </div>
+                        </div>
+                    </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => (
