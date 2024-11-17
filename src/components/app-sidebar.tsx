@@ -44,11 +44,9 @@ export function AppSidebar() {
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <Collapsible defaultOpen={false} className="group/collapsible">
-                                    <CollapsibleTrigger>
-                                        <SidebarMenuButton>
-                                            <span className="text-md">Categories</span>
-                                            <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                                        </SidebarMenuButton>
+                                    <CollapsibleTrigger className="flex px-2 my-2 justify-between w-full">
+                                        <span className="text-md">Categories</span>
+                                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                                     </CollapsibleTrigger>
                                     <CollapsibleContent className="ml-2">
                                         <SidebarMenuItem>
@@ -82,7 +80,6 @@ export function AppSidebar() {
                                     </CollapsibleContent>
                                 </Collapsible>
                             </SidebarMenuItem>
-
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
                                     <a href="#">

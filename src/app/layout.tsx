@@ -52,9 +52,7 @@ export default function RootLayout({
             <AppSidebar />
             <SidebarInset>
               <Navbar />
-              <div className="mx-auto container">
-                {children}
-              </div>
+              {children}
               <Footer />
             </SidebarInset>
           </SidebarProvider>

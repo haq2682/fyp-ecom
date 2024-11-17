@@ -15,7 +15,7 @@ export default function Navbar() {
     const { toggleSidebar } = useSidebar();
     return (
         <>
-            <nav className="flex min-w-full py-3 items-center md:px-24 lg:px-36">
+            <nav className="flex min-w-full py-3 items-center md:px-24 lg:px-36 mx-auto container">
                 <div onClick={toggleSidebar} className="lg:hidden">
                     <Button className="bg-background text-foreground">
                         <TfiMenuAlt size={25} />
