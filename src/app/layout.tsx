@@ -1,32 +1,35 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar";
 import Navbar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
-import { Raleway } from "next/font/google";
+import { Montserrat } from "next/font/google";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-const exo = localFont({
-  src: "./fonts/Exo.ttf",
-  variable: "--font-exo",
-  weight: "100 900",
-});
-const raleway = Raleway({
+// const geistSans = localFont({
+//   src: "./fonts/GeistVF.woff",
+//   variable: "--font-geist-sans",
+//   weight: "100 900",
+// });
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff",
+//   variable: "--font-geist-mono",
+//   weight: "100 900",
+// });
+// const exo = localFont({
+//   src: "./fonts/Exo.ttf",
+//   variable: "--font-exo",
+//   weight: "100 900",
+// });
+// const raleway = Raleway({
+//   subsets: ["latin"],
+//   variable: "--font-raleway",
+// });
+const montserrat = Montserrat({
   subsets: ["latin"],
-  variable: "--font-raleway",
-});
+  variable: "--font-montserrat"
+})
 
 export const metadata: Metadata = {
   title: "E-Commerce",
@@ -40,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     // <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>  
-    <html lang="en" className={`${raleway.variable}`}>
+    <html lang="en" className={`${montserrat.variable}`}>
       <body>
         <ThemeProvider
           attribute="class"

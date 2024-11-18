@@ -1,5 +1,5 @@
 "use client";
-import { Calendar, Home, Inbox, Search, Settings, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { IoClose } from "react-icons/io5";
 
 import {

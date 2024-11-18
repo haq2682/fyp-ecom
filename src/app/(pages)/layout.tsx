@@ -7,7 +7,7 @@ export default function PagesLayout({ children }: Readonly<{ children: React.Rea
     const pathname = usePathname();
     const generateBreadcrumbs = () => {
         const paths = pathname.split('/').filter(path => path)
-        let breadcrumbs = [
+        const breadcrumbs = [
             {
                 label: 'Home',
                 href: '/',
