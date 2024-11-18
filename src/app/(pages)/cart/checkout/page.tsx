@@ -91,7 +91,7 @@ export default function Component() {
                     </div>
                     <div className="flex justify-center">
                         <Button asChild className="mt-8 w-full rounded-sm" size="lg">
-                            <Link href="/orderplace">
+                            <Link href="/cart/checkout/orderplaced">
                                 Place Order
                             </Link>
                         </Button>

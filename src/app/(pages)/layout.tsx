@@ -29,7 +29,9 @@ export default function PagesLayout({ children }: Readonly<{ children: React.Rea
     const breadcrumbs = generateBreadcrumbs()
     return (
         <>
-            <Breadcrumb className="bg-secondary mb-12">
+            <Breadcrumb className={`${(pathname === '/cart/checkout/orderplaced') ? 'bg-green-300 dark:bg-green-700' : (pathname === '/cart/checkout/ordererror') ? 'bg-red-300 dark:bg-red-700' : 'bg-secondary'
+                }
+            mb-12`}>
                 <BreadcrumbList className="mx-auto container p-12">
                     {breadcrumbs.map((breadcrumb, index) => (
                         <BreadcrumbItem key={breadcrumb.href}>

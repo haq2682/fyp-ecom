@@ -76,7 +76,7 @@ export default function Cart() {
                         </div>
                         <div className="flex justify-center">
                             <Button asChild className="mt-8 w-full rounded-sm" size={"lg"}>
-                                <Link href="/checkout">
+                                <Link href="/cart/checkout">
                                     Checkout
                                 </Link>
                             </Button>
