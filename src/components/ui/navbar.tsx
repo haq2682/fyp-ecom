@@ -36,7 +36,7 @@ export default function Navbar() {
                     <div className="hidden lg:block">
                         <NavigationMenu>
                             <NavigationMenuList className="space-x-12">
-                                <NavigationMenuLink href="#" className="hover:bg-secondary p-3 rounded-lg">
+                                <NavigationMenuLink href="/home" className="hover:bg-secondary p-3 rounded-lg">
                                     Home
                                 </NavigationMenuLink>
                                 <NavigationMenuItem>
@@ -70,10 +70,10 @@ export default function Navbar() {
                                         </ul>
                                     </NavigationMenuContent>
                                 </NavigationMenuItem>
-                                <NavigationMenuLink href="#" className="hover:bg-secondary p-3 rounded-lg">
+                                <NavigationMenuLink href="/about" className="hover:bg-secondary p-3 rounded-lg">
                                     About
                                 </NavigationMenuLink>
-                                <NavigationMenuLink href="#" className="hover:bg-secondary p-3 rounded-lg">
+                                <NavigationMenuLink href="/contact" className="hover:bg-secondary p-3 rounded-lg">
                                     Contact
                                 </NavigationMenuLink>
                             </NavigationMenuList>
@@ -85,10 +85,10 @@ export default function Navbar() {
                             <Input className="pl-8 w-[40vw] lg:w-[20vw]" placeholder="Search..." type="text" />
                         </div>
                         <div className="hidden lg:flex items-center">
-                            <Link href="#" className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg" >
+                            <Link href="/cart" className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg" >
                                 <IoCartOutline size={27} />
                             </Link>
-                            <Link className="ml-3 bg-background px-4 py-2 rounded-lg transition-colors duration-200 text-foreground hover:bg-secondary" href="#" >
+                            <Link className="ml-3 bg-background px-4 py-2 rounded-lg transition-colors duration-200 text-foreground hover:bg-secondary" href="/profile" >
                                 <CgProfile size={27} />
                             </Link>
                         </div>

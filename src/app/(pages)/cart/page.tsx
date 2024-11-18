@@ -45,15 +45,15 @@ export default function Cart() {
     return (
         <>
             <div className="mx-auto container mb-12">
-                <div className="flex justify-between items-start mb-4 w-full">
-                    <div className="w-8/12">
+                <div className="flex flex-col md:flex-row justify-between items-start mb-4 w-full">
+                    <div className="w-full md:w-8/12">
                         <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
                         <Separator orientation="horizontal" className="my-6" />
                         <CartItem />
                         <CartItem />
                         <CartItem />
                     </div>
-                    <div className="border border-border p-4 w-3/12 mt-12 space-y-3">
+                    <div className="border border-border p-4 w-full md:w-3/12 mt-12 space-y-3">
                         <div className="mb-8">
                             <h1 className="font-bold text-2xl">Order Summary</h1>
                         </div>
@@ -75,7 +75,7 @@ export default function Cart() {
                             <p className="font-bold">$107.75</p>
                         </div>
                         <div className="flex justify-center">
-                            <Button asChild className="mt-8" size={"lg"}>
+                            <Button asChild className="mt-8 w-full rounded-sm" size={"lg"}>
                                 <Link href="/checkout">
                                     Checkout
                                 </Link>
