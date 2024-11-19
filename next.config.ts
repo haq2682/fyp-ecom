@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
         hostname: "picsum.photos",
         port: "",
         pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "prod-img.thesouledstore.com",
+        port: "",
+        pathname: "/**"
       }
     ]
   }
