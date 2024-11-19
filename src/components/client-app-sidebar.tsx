@@ -12,11 +12,14 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import Link from "next/link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { useTheme } from "next-themes";
 
 export function AppSidebar() {
     const { toggleSidebar } = useSidebar();
+    const { theme, setTheme } = useTheme();
     return (
         <Sidebar variant="inset">
             <SidebarContent>
@@ -37,9 +40,9 @@ export function AppSidebar() {
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <a href="#">
+                                    <Link href="/home">
                                         <span>Home</span>
-                                    </a>
+                                    </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
@@ -51,30 +54,30 @@ export function AppSidebar() {
                                     <CollapsibleContent className="ml-2">
                                         <SidebarMenuItem>
                                             <SidebarMenuButton>
-                                                <a href="#">
+                                                <Link href="#">
                                                     <span>T-Shirts</span>
-                                                </a>
+                                                </Link>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
                                             <SidebarMenuButton>
-                                                <a href="#">
+                                                <Link href="#">
                                                     <span>Polos</span>
-                                                </a>
+                                                </Link>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
                                             <SidebarMenuButton>
-                                                <a href="#">
+                                                <Link href="#">
                                                     <span>Jeans</span>
-                                                </a>
+                                                </Link>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
                                             <SidebarMenuButton>
-                                                <a href="#">
+                                                <Link href="#">
                                                     <span>Trousers</span>
-                                                </a>
+                                                </Link>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                     </CollapsibleContent>
@@ -82,30 +85,33 @@ export function AppSidebar() {
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <a href="/about">
+                                    <Link href="/about">
                                         <span>About</span>
-                                    </a>
+                                    </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <a href="/contact">
+                                    <Link href="/contact">
                                         <span>Contact</span>
-                                    </a>
+                                    </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <a href="/cart">
+                                    <Link href="/cart">
                                         <span>Cart</span>
-                                    </a>
+                                    </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <a href="#">
+                                    <Link href="#">
                                         <span>Profile</span>
-                                    </a>
+                                    </Link>
+                                </SidebarMenuButton>
+                                <SidebarMenuButton>
+                                    <span onClick={() => setTheme(() => theme === 'light' ? 'dark' : 'light')}>Toggle Theme</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

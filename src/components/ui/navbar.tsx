@@ -22,14 +22,7 @@ export default function Navbar() {
                     </Button>
                 </div>
                 <div className="flex items-center justify-between w-full container mx-auto">
-                    <div className="text-center">
-                        {
-                            theme === 'light' && <Button onClick={() => setTheme('dark')}><FaRegMoon /></Button>
-                        }
-                        {
-                            theme === 'dark' && <Button onClick={() => setTheme('light')}><FaRegSun /></Button>
-                        }
-                    </div>
+
                     <div className="cursor-pointer">
                         <Link href="/home" className="font-bold text-xl">E-Com</Link>
                     </div>
@@ -90,6 +83,14 @@ export default function Navbar() {
                             <Link className="ml-3 bg-background px-4 py-2 rounded-lg transition-colors duration-200 text-foreground hover:bg-secondary" href="/profile" >
                                 <CgProfile size={27} />
                             </Link>
+                            <div className="text-center ml-6">
+                                {
+                                    theme === 'light' && <Button variant="ghost" onClick={() => setTheme('dark')}><FaRegMoon /></Button>
+                                }
+                                {
+                                    theme === 'dark' && <Button variant="ghost" onClick={() => setTheme('light')}><FaRegSun /></Button>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
