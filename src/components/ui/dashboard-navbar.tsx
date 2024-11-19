@@ -1,9 +1,13 @@
 "use client";
 import { Button } from '@/components/ui/button';
 import { useSidebar } from './sidebar';
-import { Menu, ChevronRight } from 'lucide-react';
+import { Menu, ChevronRight, Home } from 'lucide-react';
+import Link from "next/link";
+import { useTheme } from 'next-themes';
+import { FaRegMoon, FaRegSun } from 'react-icons/fa';
 export default function DashboardNavbar() {
     const { toggleSidebar } = useSidebar();
+    const { theme, setTheme } = useTheme();
     return (
         <>
             <header className="border-b">
@@ -18,8 +22,25 @@ export default function DashboardNavbar() {
                             <span>Dashboard</span>
                         </div>
                     </div>
+                    <div className="gap-x-2 flex">
+                        <div className="text-center">
+                            <Button variant="ghost" asChild>
+                                <Link href="/home">
+                                    <Home />
+                                </Link>
+                            </Button>
+                        </div>
+                        <div className="text-center">
+                            {
+                                theme === 'light' && <Button variant="ghost" onClick={() => setTheme('dark')}><FaRegMoon /></Button>
+                            }
+                            {
+                                theme === 'dark' && <Button variant="ghost" onClick={() => setTheme('light')}><FaRegSun /></Button>
+                            }
+                        </div>
+                    </div>
                 </div>
-            </header>
+            </header >
         </>
     )
 }

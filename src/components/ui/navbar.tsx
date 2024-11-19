@@ -43,29 +43,25 @@ export default function Navbar() {
                                     <NavigationMenuTrigger className="text-md">Categories</NavigationMenuTrigger>
                                     <NavigationMenuContent>
                                         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                                            <li>
-                                                <NavigationMenuLink asChild>
-                                                    <a className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
-                                                        <div className="text-sm font-medium leading-none">T-Shirts</div>
-                                                    </a>
-                                                </NavigationMenuLink>
-                                            </li>
-                                            <li>
-                                                <NavigationMenuLink asChild>
-                                                    <a className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
-                                                        <div className="text-sm font-medium leading-none">Polos</div>
-                                                    </a>
-                                                </NavigationMenuLink>
-                                            </li>
                                             <NavigationMenuLink asChild>
-                                                <a className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
-                                                    <div className="text-sm font-medium leading-none">Jeans</div>
-                                                </a>
+                                                <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
+                                                    <div className="text-sm font-medium leading-none">T-Shirts</div>
+                                                </Link>
                                             </NavigationMenuLink>
                                             <NavigationMenuLink asChild>
-                                                <a className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
+                                                <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
+                                                    <div className="text-sm font-medium leading-none">Polos</div>
+                                                </Link>
+                                            </NavigationMenuLink>
+                                            <NavigationMenuLink asChild>
+                                                <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
+                                                    <div className="text-sm font-medium leading-none">Jeans</div>
+                                                </Link>
+                                            </NavigationMenuLink>
+                                            <NavigationMenuLink asChild>
+                                                <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" href="#">
                                                     <div className="text-sm font-medium leading-none">Trousers</div>
-                                                </a>
+                                                </Link>
                                             </NavigationMenuLink>
                                         </ul>
                                     </NavigationMenuContent>
@@ -75,6 +71,9 @@ export default function Navbar() {
                                 </NavigationMenuLink>
                                 <NavigationMenuLink href="/contact" className="hover:bg-secondary p-3 rounded-lg">
                                     Contact
+                                </NavigationMenuLink>
+                                <NavigationMenuLink href="/dashboard" className="hover:bg-secondary p-3 rounded-lg">
+                                    Dash
                                 </NavigationMenuLink>
                             </NavigationMenuList>
                         </NavigationMenu>
