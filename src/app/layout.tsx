@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar";
-import Navbar from "@/components/ui/navbar";
-import Footer from "@/components/ui/footer";
 import { Montserrat } from "next/font/google";
 
 // const geistSans = localFont({
@@ -51,14 +47,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider defaultOpen={false}>
-            <AppSidebar />
-            <SidebarInset>
-              <Navbar />
-              {children}
-              <Footer />
-            </SidebarInset>
-          </SidebarProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>
