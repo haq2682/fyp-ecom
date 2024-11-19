@@ -13,7 +13,7 @@ export default function DashboardNavbar() {
             <header className="border-b">
                 <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="lg:hidden">
+                        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden">
                             <Menu className="h-6 w-6" />
                         </Button>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">

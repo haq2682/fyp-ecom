@@ -1,5 +1,5 @@
 "use client";
-import { LayoutDashboard, Package, Settings, ShoppingCart, X } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, X, Users } from "lucide-react"
 
 import {
     Sidebar,
@@ -28,7 +28,7 @@ export default function DashboardSidebar() {
                                 <Package className="h-6 w-6" />
                                 Admin
                             </h1>
-                            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="lg:hidden">
+                            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden">
                                 <X className="h-6 w-6" />
                             </Button>
                         </div>
@@ -65,11 +65,11 @@ export default function DashboardSidebar() {
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <Link
-                                    href="/dashboard/settings"
-                                    className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-secondary ${pathname === '/dashboard/settings' ? 'bg-secondary' : ''}`}
+                                    href="/dashboard/customers"
+                                    className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-secondary ${pathname === '/dashboard/customers' ? 'bg-secondary' : ''}`}
                                 >
-                                    <Settings className="h-4 w-4" />
-                                    Settings
+                                    <Users className="h-4 w-4" />
+                                    Customers
                                 </Link>
                             </SidebarMenuItem>
                         </SidebarMenu>
