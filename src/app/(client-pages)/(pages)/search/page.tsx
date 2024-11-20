@@ -157,6 +157,10 @@ export default function Search() {
                                     <Checkbox id="category1" />
                                     <label htmlFor="category1" className="ml-2">XL</label>
                                 </div>
+                                <div className="w-1/4">
+                                    <Checkbox id="category1" />
+                                    <label htmlFor="category1" className="ml-2">XXL</label>
+                                </div>
                             </div>
                         </div>
                         <div className="mt-10">
