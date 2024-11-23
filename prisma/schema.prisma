@@ -33,18 +33,17 @@ model User {
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
   description String
-  price       Float
+  price       String
   stock       Int
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   categoryId  Int
-  category    Category    @relation(fields: [categoryId], references: [id])
-  sales       Sale[]
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
+  category    Category       @relation(fields: [categoryId], references: [id])
+  orderItems  OrderProduct[]
+  cartItems   CartProduct[]
 
   productSizes ProductSize[]
 }
@@ -73,27 +72,18 @@ model Category {
   products    Product[]
 }
 
-model Sale {
-  id        Int       @id @default(autoincrement())
-  productId Int
-  product   Product   @relation(fields: [productId], references: [id])
-  discount  Float
-  startDate DateTime
-  endDate   DateTime?
-}
-
 model Order {
-  id          Int         @id @default(autoincrement())
-  orderNumber String      @unique
-  createdAt   DateTime    @default(now())
+  id          Int            @id @default(autoincrement())
+  orderNumber String         @unique
+  createdAt   DateTime       @default(now())
   totalAmount Float
   status      String
   userId      Int
-  user        User        @relation(fields: [userId], references: [id])
-  items       OrderItem[]
+  user        User           @relation(fields: [userId], references: [id])
+  items       OrderProduct[]
 }
 
-model OrderItem {
+model OrderProduct {
   id        Int     @id @default(autoincrement())
   orderId   Int
   productId Int
@@ -104,13 +94,13 @@ model OrderItem {
 }
 
 model Cart {
-  id     Int        @id @default(autoincrement())
-  userId Int        @unique
-  user   User       @relation(fields: [userId], references: [id])
-  items  CartItem[]
+  id     Int           @id @default(autoincrement())
+  userId Int           @unique
+  user   User          @relation(fields: [userId], references: [id])
+  items  CartProduct[]
 }
 
-model CartItem {
+model CartProduct {
   id        Int     @id @default(autoincrement())
   cartId    Int
   productId Int
