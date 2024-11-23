@@ -18,6 +18,17 @@ enum Role {
   customer
 }
 
+enum Status {
+  placed
+  processing
+  dispatched
+  in_transit
+  out_for_delivery
+  delivered
+  returned
+  cancelled
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   username  String
@@ -36,7 +47,7 @@ model Product {
   id          Int            @id @default(autoincrement())
   name        String
   description String
-  price       String
+  price       Float
   stock       Int
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -74,10 +85,10 @@ model Category {
 
 model Order {
   id          Int            @id @default(autoincrement())
-  orderNumber String         @unique
+  orderNumber BigInt         @unique
   createdAt   DateTime       @default(now())
   totalAmount Float
-  status      String
+  status      Status
   userId      Int
   user        User           @relation(fields: [userId], references: [id])
   items       OrderProduct[]

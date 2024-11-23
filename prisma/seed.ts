@@ -1,4 +1,4 @@
-import { PrismaClient, Category, Size } from "@prisma/client";
+import { PrismaClient, Category, Size, Product, User, Status } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
@@ -24,7 +24,7 @@ async function seedProducts() {
             data: {
                 name: faker.commerce.productName(),
                 description: faker.commerce.productDescription(),
-                price: faker.commerce.price(),
+                price: faker.number.int({ min: 30, max: 1000 }),
                 categoryId: categories[Math.floor(Math.random() * categories.length)].id,
                 stock: Math.floor(Math.random() * 100),
             },
@@ -46,8 +46,42 @@ async function seedProducts() {
         );
     }
 }
+async function seedOrders() {
+    const products: Product[] = await prisma.product.findMany();
+    const statuses: string[] = ['placed', 'processing', 'dispatched', 'in_transit', 'out_for_delivery', 'delivered', 'returned', 'cancelled'];
+    const users: User[] = await prisma.user.findMany();
 
-seedProducts() // Change this part to run a different seed function
+    for (let i = 0; i < 10; i++) {
+        const numberOfProducts: number = faker.number.int({ min: 1, max: 5 });
+        const randomNumber: number = faker.number.int({ min: 0, max: products.length });
+        const randomQuantity: number = faker.number.int({ min: 1, max: 5 });
+        const currentStatus: Status = statuses[Math.floor(Math.random() * statuses.length)] as Status;
+        const insertingProducts: Product[] = products.slice(randomNumber, numberOfProducts + 1);
+        const totalAmount: number = insertingProducts.reduce((sum, product) => sum + (product.price * randomQuantity), 0);
+        const order = await prisma.order.create({
+            data: {
+                orderNumber: faker.number.int({ min: 1, max: 99999999 }),
+                status: currentStatus,
+                userId: users[Math.floor(Math.random() * users.length)].id,
+                totalAmount: totalAmount,
+            }
+        });
+
+        await Promise.all(
+            insertingProducts.map(product => prisma.orderProduct.create({
+                data: {
+                    orderId: order.id,
+                    productId: product.id,
+                    quantity: randomQuantity,
+                    price: product.price * randomQuantity
+                }
+            })
+            )
+        )
+    }
+}
+
+seedOrders() // Change this part to run a different seed function
     .then(async () => await prisma.$disconnect())
     .catch(async (error) => {
         console.error(error);
