@@ -36,17 +36,28 @@ model Product {
   updatedAt   DateTime    @updatedAt
   categoryId  Int
   category    Category    @relation(fields: [categoryId], references: [id])
-  sizes       Size[]
   sales       Sale[]
   orderItems  OrderItem[]
   cartItems   CartItem[]
+
+  productSizes ProductSize[]
 }
 
 model Size {
-  id        Int     @id @default(autoincrement())
-  name      String
+  id           Int           @id @default(autoincrement())
+  name         String
+  productSizes ProductSize[]
+}
+
+model ProductSize {
+  id        Int @id @default(autoincrement())
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  sizeId    Int
+
+  product Product @relation(fields: [productId], references: [id])
+  size    Size    @relation(fields: [sizeId], references: [id])
+
+  @@unique([productId, sizeId])
 }
 
 model Category {
