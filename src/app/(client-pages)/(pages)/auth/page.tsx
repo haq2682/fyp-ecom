@@ -1,8 +1,10 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
+import { signIn } from 'next-auth/react';
 
 export default function Login() {
     return (
@@ -10,7 +12,7 @@ export default function Login() {
             <div className="mx-auto container mb-12">
                 <div className="flex justify-center items-center">
                     <div className="w-80 flex flex-col items-center">
-                        <Button className="bg-background text-foreground w-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-color duration-200 border border-secondary rounded-sm p-6 shadow-md">Authenticate with Google<FcGoogle /></Button>
+                        <Button onClick={() => signIn('google')} className="bg-background text-foreground w-full hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-color duration-200 border border-secondary rounded-sm p-6 shadow-md">Authenticate with Google<FcGoogle /></Button>
                         <div className="flex justify-center items-center my-6">
                             <Separator className="w-24" />
                             <p className="mx-2">OR</p>
