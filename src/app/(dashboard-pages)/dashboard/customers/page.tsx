@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { getCustomers } from "@/actions/customers";
 import { Input } from "@/components/ui/input";
+import { User } from "@prisma/client";
 import {
     Table,
     TableBody,
@@ -36,19 +38,20 @@ interface Customer {
     address: string;
 }
 
-const sampleCustomers: Customer[] = [
-    { id: 1, username: 'john_doe', email: 'john@example.com', address: '123 Elm St' },
-    { id: 2, username: 'jane_smith', email: 'jane@example.com', address: '456 Oak St' },
-    { id: 3, username: 'alice_johnson', email: 'alice@example.com', address: '789 Pine St' },
-    { id: 4, username: 'bob_brown', email: 'bob@example.com', address: '101 Maple St' },
-];
+// const sampleCustomers: Customer[] = [
+//     { id: 1, username: 'john_doe', email: 'john@example.com', address: '123 Elm St' },
+//     { id: 2, username: 'jane_smith', email: 'jane@example.com', address: '456 Oak St' },
+//     { id: 3, username: 'alice_johnson', email: 'alice@example.com', address: '789 Pine St' },
+//     { id: 4, username: 'bob_brown', email: 'bob@example.com', address: '101 Maple St' },
+// ];
 
 const Customers = () => {
-    const [customers, setCustomers] = useState<Customer[]>(sampleCustomers);
+    const [customers, setCustomers] = useState<User[]>();
     const [editingCustomerId, setEditingCustomerId] = useState<number | null>(null);
-    const [editedCustomer, setEditedCustomer] = useState<Customer | null>(null);
+    const [editedCustomer, setEditedCustomer] = useState<User | null>(null);
+    const [error, setError] = useState<unknown | null>();
 
-    const handleEditClick = (customer: Customer) => {
+    const handleEditClick = (customer: User) => {
         setEditingCustomerId(customer.id);
         setEditedCustomer(customer);
     };
@@ -66,13 +69,22 @@ const Customers = () => {
 
     const handleSubmit = () => {
         if (editedCustomer) {
-            setCustomers(customers.map(customer =>
+            setCustomers(customers?.map(customer =>
                 customer.id === editedCustomer.id ? editedCustomer : customer
             ));
             setEditingCustomerId(null);
             setEditedCustomer(null);
         }
     };
+
+    const fetchCustomers = useCallback(async () => {
+        const response: User[] = await getCustomers();
+        setCustomers(response);
+    }, [customers]);
+
+    useEffect(() => {
+        fetchCustomers();
+    }, [customers]);
 
     return (
         <div className="container mx-auto mt-12">
@@ -91,7 +103,7 @@ const Customers = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {customers.map((customer) => (
+                    {customers?.map((customer: User) => (
                         <TableRow key={customer.id} className="text-center">
                             <TableCell>{customer.id}</TableCell>
                             <TableCell>
