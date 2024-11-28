@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { getCustomers } from "@/actions/customers";
 import { Input } from "@/components/ui/input";
 import { User } from "@prisma/client";
@@ -30,13 +30,7 @@ import {
 } from "@/components/ui/pagination"
 
 import { MoreHorizontal } from "lucide-react";
-
-interface Customer {
-    id: number;
-    username: string;
-    email: string;
-    address: string;
-}
+import Loading from '@/components/ui/loading';
 
 // const sampleCustomers: Customer[] = [
 //     { id: 1, username: 'john_doe', email: 'john@example.com', address: '123 Elm St' },
@@ -50,6 +44,7 @@ const Customers = () => {
     const [editingCustomerId, setEditingCustomerId] = useState<number | null>(null);
     const [editedCustomer, setEditedCustomer] = useState<User | null>(null);
     const [error, setError] = useState<unknown | null>();
+    const [loading, setLoading] = useState<boolean>(true);
 
     const handleEditClick = (customer: User) => {
         setEditingCustomerId(customer.id);
@@ -61,7 +56,7 @@ const Customers = () => {
         setEditedCustomer(null);
     }
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof Customer) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof User) => {
         if (editedCustomer) {
             setEditedCustomer({ ...editedCustomer, [field]: e.target.value });
         }
@@ -78,13 +73,19 @@ const Customers = () => {
     };
 
     const fetchCustomers = useCallback(async () => {
-        const response: User[] = await getCustomers();
-        setCustomers(response);
+        try {
+            const response = await getCustomers();
+            setCustomers(response);
+        }
+        catch (error) {
+            setError(error);
+        }
     }, [customers]);
 
     useEffect(() => {
         fetchCustomers();
-    }, [customers]);
+    });
+
 
     return (
         <div className="container mx-auto mt-12">
