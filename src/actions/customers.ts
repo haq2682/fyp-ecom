@@ -1,8 +1,6 @@
 "use server";
 import prisma from "@/db";
 import { User } from "@prisma/client";
-import { NextResponse } from "next/server";
-import { typeResponseError } from "@/types";
 
 export const getCustomers = async (): Promise<User[]> => {
     try {

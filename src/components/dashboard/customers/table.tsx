@@ -1,7 +1,9 @@
+"use client";
 import { getCustomers } from "@/actions/customers"
 import { User } from "@prisma/client"
 import { MoreHorizontal } from 'lucide-react'
 import { Input } from "@/components/ui/input"
+import React, {useState} from 'react'
 import {
     Table,
     TableBody,
@@ -18,24 +20,42 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 interface CustomersTableProps {
-    customers: User[]
-    editingCustomerId: number | null
-    editedCustomer: User | null
-    onEditClick: (customer: User) => void
-    onInputChange: (e: React.ChangeEvent<HTMLInputElement>, field: keyof User) => void
-    onSubmit: () => void
-    onDiscard: () => void
+    customers: User[],
+    setCustomers: React.Dispatch<React.SetStateAction<User[]>>
 }
 
-export function CustomersTable({
+export default function CustomersTable({
     customers,
-    editingCustomerId,
-    editedCustomer,
-    onEditClick,
-    onInputChange,
-    onSubmit,
-    onDiscard,
+    setCustomers
 }: CustomersTableProps) {
+    const [editingCustomerId, setEditingCustomerId] = useState<number | null>(null);
+    const [editedCustomer, setEditedCustomer] = useState<User | null>(null);
+
+    const handleEditClick = (customer: User) => {
+        setEditingCustomerId(customer.id);
+        setEditedCustomer(customer);
+    };
+
+    const handleDiscard = () => {
+        setEditingCustomerId(null);
+        setEditedCustomer(null);
+    }
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof User) => {
+        if (editedCustomer) {
+            setEditedCustomer({ ...editedCustomer, [field]: e.target.value });
+        }
+    };
+
+    const handleSubmit = () => {
+        if (editedCustomer) {
+            setCustomers(customers?.map(customer =>
+                customer.id === editedCustomer.id ? editedCustomer : customer
+            ));
+            setEditingCustomerId(null);
+            setEditedCustomer(null);
+        }
+    };
     return (
         <Table>
             <TableHeader>
@@ -55,7 +75,7 @@ export function CustomersTable({
                             {editingCustomerId === customer.id ? (
                                 <Input
                                     value={editedCustomer?.username}
-                                    onChange={(e) => onInputChange(e, "username")}
+                                    onChange={(e) => handleInputChange(e, "username")}
                                 />
                             ) : (
                                 customer.username
@@ -65,7 +85,7 @@ export function CustomersTable({
                             {editingCustomerId === customer.id ? (
                                 <Input
                                     value={editedCustomer?.email}
-                                    onChange={(e) => onInputChange(e, "email")}
+                                    onChange={(e) => handleInputChange(e, "email")}
                                 />
                             ) : (
                                 customer.email
@@ -75,7 +95,7 @@ export function CustomersTable({
                             {editingCustomerId === customer.id ? (
                                 <Input
                                     value={editedCustomer?.address}
-                                    onChange={(e) => onInputChange(e, "address")}
+                                    onChange={(e) => handleInputChange(e, "address")}
                                 />
                             ) : (
                                 customer.address
@@ -89,14 +109,14 @@ export function CustomersTable({
                                 <DropdownMenuContent>
                                     {editingCustomerId === customer.id ? (
                                         <>
-                                            <DropdownMenuItem onClick={onSubmit}>Save</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={onDiscard}>
+                                            <DropdownMenuItem onClick={handleSubmit}>Save</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={handleDiscard}>
                                                 Discard
                                             </DropdownMenuItem>
                                         </>
                                     ) : (
                                         <>
-                                            <DropdownMenuItem onClick={() => onEditClick(customer)}>
+                                            <DropdownMenuItem onClick={() => handleEditClick(customer)}>
                                                 Edit
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="text-destructive">

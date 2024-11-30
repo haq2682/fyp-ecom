@@ -1,24 +1,8 @@
 "use client";
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getCustomers } from "@/actions/customers";
 import { Input } from "@/components/ui/input";
 import { User } from "@prisma/client";
-import {
-    Table,
-    TableBody,
-    TableHead,
-    TableHeader,
-    TableCell,
-    TableRow,
-} from "@/components/ui/table";
-
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 import {
     Pagination,
     PaginationContent,
@@ -28,50 +12,17 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-
-import { MoreHorizontal } from "lucide-react";
 import Loading from '@/components/ui/loading';
-
+import CustomersTable from "@/components/dashboard/customers/table";
 // const sampleCustomers: Customer[] = [
 //     { id: 1, username: 'john_doe', email: 'john@example.com', address: '123 Elm St' },
 //     { id: 2, username: 'jane_smith', email: 'jane@example.com', address: '456 Oak St' },
 //     { id: 3, username: 'alice_johnson', email: 'alice@example.com', address: '789 Pine St' },
 //     { id: 4, username: 'bob_brown', email: 'bob@example.com', address: '101 Maple St' },
 // ];
-
 const Customers = () => {
-    const [customers, setCustomers] = useState<User[]>();
-    const [editingCustomerId, setEditingCustomerId] = useState<number | null>(null);
-    const [editedCustomer, setEditedCustomer] = useState<User | null>(null);
+    const [customers, setCustomers] = useState<User[]>([]);
     const [error, setError] = useState<unknown | null>();
-    const [loading, setLoading] = useState<boolean>(true);
-
-    const handleEditClick = (customer: User) => {
-        setEditingCustomerId(customer.id);
-        setEditedCustomer(customer);
-    };
-
-    const handleDiscard = () => {
-        setEditingCustomerId(null);
-        setEditedCustomer(null);
-    }
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof User) => {
-        if (editedCustomer) {
-            setEditedCustomer({ ...editedCustomer, [field]: e.target.value });
-        }
-    };
-
-    const handleSubmit = () => {
-        if (editedCustomer) {
-            setCustomers(customers?.map(customer =>
-                customer.id === editedCustomer.id ? editedCustomer : customer
-            ));
-            setEditingCustomerId(null);
-            setEditedCustomer(null);
-        }
-    };
-
     const fetchCustomers = useCallback(async () => {
         try {
             const response = await getCustomers();
@@ -81,91 +32,16 @@ const Customers = () => {
             setError(error);
         }
     }, [customers]);
-
     useEffect(() => {
         fetchCustomers();
-    });
-
-
+    }, []);
     return (
         <div className="container mx-auto mt-12">
             <header className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-bold w-1/6">Customers</h2>
                 <Input className="w-1/3 md:w-1/4 lg:w-1/6" placeholder="Search Customers" />
             </header>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="text-center">Customer ID</TableHead>
-                        <TableHead className="text-center">Username</TableHead>
-                        <TableHead className="text-center">Email</TableHead>
-                        <TableHead className="text-center">Address</TableHead>
-                        <TableHead className="text-center">Action</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {customers?.map((customer: User) => (
-                        <TableRow key={customer.id} className="text-center">
-                            <TableCell>{customer.id}</TableCell>
-                            <TableCell>
-                                {editingCustomerId === customer.id ? (
-                                    <Input
-                                        value={editedCustomer?.username}
-                                        onChange={(e) => handleInputChange(e, 'username')}
-                                    />
-                                ) : (
-                                    customer.username
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                {editingCustomerId === customer.id ? (
-                                    <Input
-                                        value={editedCustomer?.email}
-                                        onChange={(e) => handleInputChange(e, 'email')}
-                                    />
-                                ) : (
-                                    customer.email
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                {editingCustomerId === customer.id ? (
-                                    <Input
-                                        value={editedCustomer?.address}
-                                        onChange={(e) => handleInputChange(e, 'address')}
-                                    />
-                                ) : (
-                                    customer.address
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger>
-                                        <MoreHorizontal />
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        {editingCustomerId === customer.id ? (
-                                            <>
-                                                <DropdownMenuItem onClick={handleSubmit}>
-                                                    Save
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={handleDiscard}>
-                                                    Discard
-                                                </DropdownMenuItem>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <DropdownMenuItem onClick={() => handleEditClick(customer)}>Edit</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                                            </>
-
-                                        )}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            <CustomersTable customers={customers} setCustomers={setCustomers} />
             <div className="mt-12">
                 <Pagination>
                     <PaginationContent>
@@ -195,5 +71,4 @@ const Customers = () => {
         </div >
     );
 };
-
 export default Customers;
