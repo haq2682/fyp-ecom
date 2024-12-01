@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { getCustomers } from "@/actions/customers";
-import { Input } from "@/components/ui/input";
 import { User } from "@prisma/client";
 import {
     Pagination,
@@ -11,37 +10,54 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from "@/components/ui/pagination"
-import Loading from '@/components/ui/loading';
+} from "@/components/ui/pagination";
 import CustomersTable from "@/components/dashboard/customers/table";
-// const sampleCustomers: Customer[] = [
-//     { id: 1, username: 'john_doe', email: 'john@example.com', address: '123 Elm St' },
-//     { id: 2, username: 'jane_smith', email: 'jane@example.com', address: '456 Oak St' },
-//     { id: 3, username: 'alice_johnson', email: 'alice@example.com', address: '789 Pine St' },
-//     { id: 4, username: 'bob_brown', email: 'bob@example.com', address: '101 Maple St' },
-// ];
-const Customers = () => {
+import CustomerSearch from "@/components/dashboard/customers/search";
+import { useSearchParams } from "next/navigation";
+import Loading from "@/components/ui/loading";
+
+export default function Customers() {
+    const searchParams = useSearchParams();
+    const searchQuery = searchParams.get('query');
     const [customers, setCustomers] = useState<User[]>([]);
-    const [error, setError] = useState<unknown | null>();
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
     const fetchCustomers = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        setCustomers([]);
         try {
-            const response = await getCustomers();
+            const response = await getCustomers(searchQuery);
             setCustomers(response);
+        } catch (error) {
+            setError('Failed to fetch customers. Please try again later.');
+        } finally {
+            setIsLoading(false);
         }
-        catch (error) {
-            setError(error);
-        }
-    }, [customers]);
+    }, [searchQuery]);
+
     useEffect(() => {
         fetchCustomers();
-    }, []);
+    }, [fetchCustomers]);
+
     return (
         <div className="container mx-auto mt-12">
             <header className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-bold w-1/6">Customers</h2>
-                <Input className="w-1/3 md:w-1/4 lg:w-1/6" placeholder="Search Customers" />
+                <CustomerSearch />
             </header>
-            <CustomersTable customers={customers} setCustomers={setCustomers} />
+            <div className="flex justify-center items-center">
+                {
+                    isLoading && <Loading />
+                }
+                {
+                    error && <p className="text-red-500">{error}</p>
+                }
+                {
+                    !isLoading && !error && <CustomersTable customers={customers} setCustomers={setCustomers} />
+                }
+            </div>
             <div className="mt-12">
                 <Pagination>
                     <PaginationContent>
@@ -68,7 +84,8 @@ const Customers = () => {
                     </PaginationContent>
                 </Pagination>
             </div>
-        </div >
+        </div>
     );
-};
-export default Customers;
+}
+
+;
