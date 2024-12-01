@@ -2,40 +2,36 @@
 import { useEffect, useState, useCallback } from "react";
 import { getCustomers } from "@/actions/customers";
 import { User } from "@prisma/client";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
 import CustomersTable from "@/components/dashboard/customers/table";
-import CustomerSearch from "@/components/dashboard/customers/search";
+import CustomersSearch from "@/components/dashboard/customers/search";
+import CustomersPagination from "@/components/dashboard/customers/pagination";
 import { useSearchParams } from "next/navigation";
 import Loading from "@/components/ui/loading";
 
 export default function Customers() {
     const searchParams = useSearchParams();
-    const searchQuery = searchParams.get('query');
+    const searchQuery: string | null = searchParams.get('query');
+    const currentPage: number = Number(searchParams.get('page')) || 1;
     const [customers, setCustomers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [totalPages, setTotalPages] = useState<number>(1);
 
     const fetchCustomers = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         setCustomers([]);
         try {
-            const response = await getCustomers(searchQuery);
-            setCustomers(response);
+            const response = await getCustomers(searchQuery, currentPage);
+            setCustomers(response.result);
+            setTotalPages(response.totalPages);
         } catch (error) {
+            console.error(error);
             setError('Failed to fetch customers. Please try again later.');
         } finally {
             setIsLoading(false);
         }
-    }, [searchQuery]);
+    }, [searchQuery, currentPage, totalPages]);
 
     useEffect(() => {
         fetchCustomers();
@@ -45,7 +41,7 @@ export default function Customers() {
         <div className="container mx-auto mt-12">
             <header className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-bold w-1/6">Customers</h2>
-                <CustomerSearch />
+                <CustomersSearch />
             </header>
             <div className="flex justify-center items-center">
                 {
@@ -59,30 +55,7 @@ export default function Customers() {
                 }
             </div>
             <div className="mt-12">
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious href="#" />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#" isActive>
-                                2
-                            </PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">3</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationEllipsis />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationNext href="#" />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
+                <CustomersPagination totalPages={totalPages} currentPage={currentPage} setIsLoading={setIsLoading} />
             </div>
         </div>
     );
