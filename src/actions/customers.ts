@@ -7,9 +7,10 @@ export const getCustomers = async (searchQuery: string | null, currentPage: numb
         const offset: number = (currentPage - 1) * limit;
         if (searchQuery) {
             const result: User[] = await prisma.$queryRaw`SELECT * FROM User AS customers WHERE customers.role = 'customer' AND (customers.username LIKE ${'%' + searchQuery + '%'} OR customers.email LIKE ${'%' + searchQuery + '%'}) LIMIT ${limit} OFFSET ${offset};`;
-            const totalResult: { customers_length: number }[] = await prisma.$queryRaw`SELECT COUNT(*) as customers_length FROM User WHERE role = 'customer' AND (customers.username LIKE ${'%' + searchQuery + '%'} OR customers.email LIKE ${'%' + searchQuery + '%'})`;
+            const totalResult: { customers_length: number }[] = await prisma.$queryRaw`SELECT COUNT(*) as customers_length FROM User WHERE role = 'customer' AND (username LIKE ${'%' + searchQuery + '%'} OR email LIKE ${'%' + searchQuery + '%'})`;
             const total: number = Number(totalResult[0].customers_length);
             const totalPages: number = Math.ceil(total / limit);
+            console.log(totalPages);
             return { result, total, totalPages }
         }
         else {
@@ -17,7 +18,6 @@ export const getCustomers = async (searchQuery: string | null, currentPage: numb
             const totalResult: { customers_length: number }[] = await prisma.$queryRaw`SELECT COUNT(*) AS customers_length FROM User WHERE role = 'customer'`;
             const total: number = Number(totalResult[0].customers_length);
             const totalPages: number = Math.ceil(total / limit);
-            console.log(totalPages);
             return { result, total, totalPages };
         }
     }

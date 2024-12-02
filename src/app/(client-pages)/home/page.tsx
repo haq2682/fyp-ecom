@@ -13,7 +13,7 @@ export default function Home() {
                         <div className="text-center md:text-left">
                             <h1 className="text-2xl font-bold">Fresh Arrivals Online</h1>
                             <p className="text-gray-500">Get the latest fashion trends and styles</p>
-                            <Button className="bg-primary py-2 px-4 rounded-sm hover:bg-secondary mt-12">View Collection <FaArrowRight size={24} /></Button>
+                            <Button className="bg-primary py-2 px-4 rounded-sm mt-12">View Collection <FaArrowRight size={24} /></Button>
                         </div>
                         <div className="mt-16 md:mt-0">
                             <Image src="https://picsum.photos/400" width={400} height={400} alt="Sample Photo" />
@@ -64,7 +64,7 @@ export default function Home() {
                         <div className="text-center md:text-left">
                             <h1 className="text-2xl font-bold">Browse Our Fashion Paradise!</h1>
                             <p className="text-gray-500">Step into a world of style and explore our diverse collection of clothing categories.</p>
-                            <Button className="bg-primary py-2 px-4 rounded-sm hover:bg-secondary mt-12">View Collection <FaArrowRight size={24} /></Button>
+                            <Button className="bg-primary py-2 px-4 rounded-sm mt-12">View Collection <FaArrowRight size={24} /></Button>
                         </div>
                         <div className="mt-16 md:mt-0">
                             <Image src="https://picsum.photos/400" width={400} height={400} alt="Sample Photo" />
