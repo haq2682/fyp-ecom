@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { signOut } from "next-auth/react";
 
 export default function Profie() {
     return (
@@ -14,7 +15,7 @@ export default function Profie() {
                 </div>
                 <div className="flex flex-col my-12 gap-y-4">
                     <Button className="rounded-sm">Save Changes</Button>
-                    <Button className="rounded-sm" variant="ghost">Log Out</Button>
+                    <Button onClick={() => signOut()} className="rounded-sm" variant="ghost">Log Out</Button>
                     <Button className="rounded-sm" variant="destructive">Delete Account</Button>
                 </div>
             </div>

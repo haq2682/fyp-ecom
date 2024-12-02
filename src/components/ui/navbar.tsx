@@ -10,9 +10,12 @@ import { CgProfile } from "react-icons/cg";
 import { FaRegMoon, FaRegSun } from "react-icons/fa";
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
+import { useSession } from 'next-auth/react';
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const { toggleSidebar } = useSidebar();
+    const { data: session, status } = useSession();
+    
     return (
         <>
             <nav className="flex min-w-full py-3 items-center md:px-24 lg:px-36 mx-auto container">
@@ -65,9 +68,9 @@ export default function Navbar() {
                                 <NavigationMenuLink href="/contact" className="hover:bg-secondary p-3 rounded-lg">
                                     Contact
                                 </NavigationMenuLink>
-                                <NavigationMenuLink href="/dashboard" className="hover:bg-secondary p-3 rounded-lg">
-                                    Dash
-                                </NavigationMenuLink>
+                                {
+                                    status === 'authenticated' && <NavigationMenuLink href="/dashboard" className="hover:bg-secondary p-3 rounded-lg">Dash</NavigationMenuLink>
+                                }
                             </NavigationMenuList>
                         </NavigationMenu>
                     </div>
@@ -77,12 +80,18 @@ export default function Navbar() {
                             <Input className="pl-8 w-[40vw] lg:w-[20vw]" placeholder="Search..." type="text" />
                         </div>
                         <div className="hidden lg:flex items-center">
-                            <Link href="/cart" className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg" >
-                                <IoCartOutline size={27} />
-                            </Link>
-                            <Link className="ml-3 bg-background px-4 py-2 rounded-lg transition-colors duration-200 text-foreground hover:bg-secondary" href="/profile" >
-                                <CgProfile size={27} />
-                            </Link>
+                            {
+                                status === 'authenticated' && (
+                                    <>
+                                        <Link href="/cart" className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg" >
+                                            <IoCartOutline size={27} />
+                                        </Link>
+                                        <Link className="ml-3 bg-background px-4 py-2 rounded-lg transition-colors duration-200 text-foreground hover:bg-secondary" href="/profile" >
+                                            <CgProfile size={27} />
+                                        </Link>
+                                    </>
+                                )
+                            }
                             <div className="text-center ml-6">
                                 {
                                     theme === 'light' && <Button variant="ghost" onClick={() => setTheme('dark')}><FaRegMoon /></Button>

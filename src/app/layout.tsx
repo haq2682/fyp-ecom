@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Montserrat } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
+import Providers from "./providers";
 
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
@@ -38,17 +40,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>  
     <html lang="en" className={`${montserrat.variable}`}>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <Providers>
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

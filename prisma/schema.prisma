@@ -34,8 +34,8 @@ model User {
   username  String
   email     String   @unique
   password  String
-  address   String
-  contact   String
+  address   String?
+  contact   String?
   role      Role     @default(customer)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

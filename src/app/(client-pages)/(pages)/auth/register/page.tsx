@@ -22,7 +22,7 @@ export default function Register() {
                             </div>
                             <div className="text-center">
                                 <p>Already have an account?
-                                    <Link href="/auth/register" className="ml-1 font-bold hover:text-neutral-500 transition-color duration-200">
+                                    <Link href="/auth" className="ml-1 font-bold hover:text-neutral-500 transition-color duration-200">
                                         Log In Here
                                     </Link>
                                 </p>
