@@ -31,7 +31,7 @@ enum Status {
 
 model User {
   id        Int      @id @default(autoincrement())
-  username  String
+  name      String
   email     String   @unique
   password  String
   address   String?
@@ -44,19 +44,28 @@ model User {
 }
 
 model Product {
-  id          Int            @id @default(autoincrement())
-  name        String
-  description String
-  price       Float
-  stock       Int
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  categoryId  Int
-  category    Category       @relation(fields: [categoryId], references: [id])
-  orderItems  OrderProduct[]
-  cartItems   CartProduct[]
-
+  id           Int            @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float
+  stock        Int
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  categoryId   Int
+  category     Category       @relation(fields: [categoryId], references: [id])
+  orderItems   OrderProduct[]
+  cartItems    CartProduct[]
+  images       Image[]
   productSizes ProductSize[]
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  path      String
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Size {

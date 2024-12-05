@@ -1,13 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from "next-auth/providers/credentials";
 import { User, Role } from '@prisma/client';
 import NextAuth from 'next-auth';
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 const client: string = process.env.GOOGLE_ID as string;
 const secret: string = process.env.GOOGLE_SECRET as string;
+
+function generateRandomString(length: number): string {
+    return crypto.randomBytes(Math.ceil(length / 2))
+        .toString('hex')
+        .slice(0, length);
+}
+
+async function hashString(str: string): Promise<string> {
+    const saltRounds = 10;
+    return bcrypt.hash(str, saltRounds);
+}
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -15,17 +29,31 @@ export const authOptions: NextAuthOptions = {
             clientId: client,
             clientSecret: secret,
         }),
+        CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                email: { label: "Email", type: "email" },
+                password: { label: "Password", type: "password" },
+            },
+            async authorize(credentials, req) {
+                // const user = await prisma.$queryRaw<User[]>`SELECT * FROM User WHERE email = ${credentials?.email}`;
+                console.log(credentials);
+                return null;
+            }
+        }),
     ],
     callbacks: {
         async signIn({ user, account }) {
             if (account?.provider === 'google') {
                 const { email, name } = user;
+                const password = generateRandomString(10);
+                const hashedPassword = await hashString(password);
 
                 try {
                     const existingUser = await prisma.$queryRaw<User[]>`SELECT * FROM "User" WHERE email = ${email}`;
 
                     if (existingUser.length === 0) {
-                        await prisma.$executeRaw`INSERT INTO "User" (username, email, password, role, "createdAt", "updatedAt") VALUES (${name}, ${email}, '', 'customer', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
+                        await prisma.$executeRaw`INSERT INTO "User" (username, email, password, role, "createdAt", "updatedAt") VALUES (${name}, ${email}, ${hashedPassword}, 'customer', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
                     }
 
                     return true;
