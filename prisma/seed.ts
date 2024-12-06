@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function seedUsers() {
     const users = Array.from({ length: 1000 }).map(() => ({
-        username: faker.internet.username(),
+        name: faker.internet.username(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         address: faker.location.streetAddress(),
@@ -15,35 +15,38 @@ async function seedUsers() {
 }
 
 async function seedProducts() {
-    const sizes: Size[] = await prisma.$queryRaw`SELECT * FROM Size`;
-
-    const categories: Category[] = await prisma.$queryRaw`SELECT * FROM Category`;
+    const sizes = await prisma.size.findMany();
+    const categories = await prisma.category.findMany();
 
     for (let i = 0; i < 10; i++) {
         const product = await prisma.product.create({
             data: {
                 name: faker.commerce.productName(),
                 description: faker.commerce.productDescription(),
-                price: faker.number.int({ min: 30, max: 1000 }),
-                categoryId: categories[Math.floor(Math.random() * categories.length)].id,
-                stock: Math.floor(Math.random() * 100),
+                price: parseFloat(faker.commerce.price({ min: 30, max: 1000 })),
+                categoryId: faker.helpers.arrayElement(categories).id,
+                stock: faker.number.int({ min: 0, max: 100 }),
             },
         });
 
-        const numberOfSizes = Math.floor(Math.random() * (sizes.length - 1)) + 2;
+        const numberOfSizes = faker.number.int({ min: 2, max: sizes.length });
+        const selectedSizes = faker.helpers.shuffle(sizes).slice(0, numberOfSizes);
 
-        const selectedSizes = faker.helpers.shuffle([...sizes]).slice(0, numberOfSizes);
+        await prisma.productSize.createMany({
+            data: selectedSizes.map(size => ({
+                productId: product.id,
+                sizeId: size.id,
+            })),
+        });
 
-        await Promise.all(
-            selectedSizes.map(size =>
-                prisma.productSize.create({
-                    data: {
-                        productId: product.id,
-                        sizeId: size.id,
-                    },
-                })
-            )
-        );
+        const numberOfImages = faker.number.int({ min: 1, max: 6 });
+
+        await prisma.image.createMany({
+            data: Array.from({ length: numberOfImages }).map(() => ({
+                path: `https://picsum.photos/800/600?random=${faker.number.int({ min: 1, max: 1000 })}`,
+                productId: product.id,
+            })),
+        });
     }
 }
 async function seedOrders() {

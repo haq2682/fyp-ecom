@@ -1,5 +1,4 @@
 "use client";
-import { getCustomers } from "@/actions/customers"
 import { User } from "@prisma/client"
 import { MoreHorizontal } from 'lucide-react'
 import { Input } from "@/components/ui/input"

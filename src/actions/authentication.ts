@@ -1,6 +1,10 @@
 'use server'
 
+import prisma from '@/db';
+import { User } from '@prisma/client';
 import * as z from 'zod';
+import bcrypt from 'bcrypt';
+import { signIn } from 'next-auth/react';
 
 const userLoginSchema = z.object({
     email: z.string().email(),
@@ -8,7 +12,12 @@ const userLoginSchema = z.object({
 });
 
 type LoginFormState = {
+    status: string;
     message: string;
+    errors?: {
+        email?: string[];
+        password?: string[];
+    }
 };
 
 export async function login(previousState: LoginFormState, formData: FormData): Promise<LoginFormState> {
@@ -20,24 +29,51 @@ export async function login(previousState: LoginFormState, formData: FormData): 
 
         if (!result.success) {
             return {
-                message: result.error.errors[0].message
+                status: 'error',
+                message: result.error.message,
+                errors: result.error.flatten().fieldErrors
             };
         }
 
-        // Here you would typically handle the actual login logic
-        // For now, we'll just return a success message
+        const emailResult = await prisma.$queryRaw<User[]>`SELECT email, password FROM User WHERE email = ${email} LIMIT 1`;
+
+        if (emailResult.length === 0) {
+            return {
+                status: 'not_found',
+                message: 'Invalid Credentials',
+                errors: {
+                    email: ['An account with this email does not exist. Please register first.'],
+                }
+            }
+        }
+
+        const hashCheck = await bcrypt.compare(password as string, emailResult[0].password);
+
+        if (hashCheck) {
+            signIn('credentials');
+        }
+        else return {
+            status: 'error',
+            message: 'Invalid Credentials',
+            errors: {
+                password: ['Invalid Password']
+            }
+        }
         return {
-            message: 'Login successful'
+            status: 'success',
+            message: 'Login Successful'
         };
     }
     catch (error) {
         if (error instanceof z.ZodError) {
             return {
-                message: error.errors[0].message
+                status: 'error',
+                message: error.message,
+                errors: error.flatten().fieldErrors
             };
         }
-        // Handle any other types of errors
         return {
+            status: 'error',
             message: 'An unexpected error occurred'
         };
     }
