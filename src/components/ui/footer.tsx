@@ -8,7 +8,7 @@ export default function Footer() {
     const { theme, setTheme } = useTheme();
     return (
         <>
-            <div className="bg-secondary">
+            <footer className="bg-secondary">
                 <div className="flex flex-col w-full lg:flex-row justify-evenly py-8 space-x-8 space-y-12 overflow-x-auto">
                     <div className="text-center flex items-center flex-col pl-4 justify-center">
                         <h2 className="text-2xl font-bold">E-COMMERCE</h2>
@@ -51,7 +51,7 @@ export default function Footer() {
                 <div className="text-center text-zinc-400 dark:text-zinc-600">
                     2024 FA22-BCS-B-Prac-ECom. All Rights Reserved
                 </div>
-            </div >
+            </footer>
         </>
     );
 }

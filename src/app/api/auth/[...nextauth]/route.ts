@@ -35,10 +35,32 @@ export const authOptions: NextAuthOptions = {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
             },
-            async authorize(credentials, req) {
-                // const user = await prisma.$queryRaw<User[]>`SELECT * FROM User WHERE email = ${credentials?.email}`;
-                console.log(credentials);
-                return null;
+            async authorize(credentials) {
+                if (!credentials?.email || !credentials?.password) {
+                    return null;
+                }
+
+                const users = await prisma.$queryRaw<User[]>`
+                    SELECT * FROM "User" WHERE email = ${credentials.email} LIMIT 1
+                `;
+
+                if (users.length === 0) {
+                    return null;
+                }
+
+                const user = users[0];
+                const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+                if (!isPasswordValid) {
+                    return null;
+                }
+
+                return {
+                    id: user.id.toString(),
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                };
             }
         }),
     ],
@@ -50,10 +72,15 @@ export const authOptions: NextAuthOptions = {
                 const hashedPassword = await hashString(password);
 
                 try {
-                    const existingUser = await prisma.$queryRaw<User[]>`SELECT * FROM "User" WHERE email = ${email}`;
+                    const existingUsers = await prisma.$queryRaw<User[]>`
+                        SELECT * FROM "User" WHERE email = ${email} LIMIT 1
+                    `;
 
-                    if (existingUser.length === 0) {
-                        await prisma.$executeRaw`INSERT INTO "User" (username, email, password, role, "createdAt", "updatedAt") VALUES (${name}, ${email}, ${hashedPassword}, 'customer', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
+                    if (existingUsers.length === 0) {
+                        await prisma.$executeRaw`
+                            INSERT INTO "User" (name, email, password, role, "createdAt", "updatedAt")
+                            VALUES (${name}, ${email}, ${hashedPassword}, 'customer', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        `;
                     }
 
                     return true;
@@ -66,13 +93,14 @@ export const authOptions: NextAuthOptions = {
         },
         async jwt({ token, user }) {
             if (user) {
-                const dbUser = await prisma.user.findUnique({
-                    where: { email: user.email as string },
-                });
+                const dbUsers = await prisma.$queryRaw<User[]>`
+                    SELECT * FROM "User" WHERE email = ${user.email} LIMIT 1
+                `;
 
-                if (dbUser) {
+                if (dbUsers.length > 0) {
+                    const dbUser = dbUsers[0];
                     token.id = dbUser.id;
-                    token.username = dbUser.username;
+                    token.name = dbUser.name;
                     token.email = dbUser.email;
                     token.address = dbUser.address;
                     token.contact = dbUser.contact;
@@ -86,7 +114,7 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             if (token && session.user) {
                 session.user.id = token.id as number;
-                session.user.username = token.username as string;
+                session.user.name = token.name as string;
                 session.user.email = token.email as string;
                 session.user.address = token.address as string | null;
                 session.user.contact = token.contact as string | null;

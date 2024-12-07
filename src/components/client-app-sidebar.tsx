@@ -106,6 +106,13 @@ export function AppSidebar() {
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
+                                    <Link href="/auth">
+                                        <span>Log In</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
                                     <Link href="#">
                                         <span>Profile</span>
                                     </Link>

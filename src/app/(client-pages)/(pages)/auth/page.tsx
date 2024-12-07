@@ -6,14 +6,14 @@ import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { signIn } from 'next-auth/react';
 import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import { login } from "@/actions/authentication";
 import Loading from "@/components/ui/loading";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 
 export default function Login() {
-    const { pending } = useFormStatus();
-    const [state, formAction] = useFormState(login, {
+    const [state, formAction, pending] = useActionState(login, {
         status: '',
         message: '',
     });
@@ -42,7 +42,8 @@ export default function Login() {
                                 "
                             disabled={pending}
                         >
-                            Authenticate with Google<FcGoogle />
+                            Authenticate with Google
+                        <FcGoogle />
                         </Button>
                         <div className="flex justify-center items-center my-6">
                             <Separator className="w-24" />
@@ -66,7 +67,7 @@ export default function Login() {
                                 />
                                 <div className="text-sm text-destructive mt-2">
                                     {
-                                        state.errors?.email && (state.errors?.email?.map((error) => error))
+                                        state.errors?.email && (state.errors?.email?.map((error) => <div className="my-1">{error}</div>))
                                     }
                                 </div>
                             </div>
@@ -88,7 +89,7 @@ export default function Login() {
                                 />
                                 <div className="text-sm text-destructive my-2">
                                     {
-                                        state.errors?.password && (state.errors?.password?.map((error) => error))
+                                        state.errors?.password && (state.errors?.password?.map((error) => <div className="my-1">{error}</div>))
                                     }
                                 </div>
                                 <Link href="/auth/reset-password" className="text-right text-sm font-bold hover:text-neutral-500 transition-color duration-200">

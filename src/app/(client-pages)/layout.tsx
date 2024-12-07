@@ -9,9 +9,11 @@ export default function ClientPagesLayout({ children }: { children: Readonly<Rea
             <SidebarProvider defaultOpen={false}>
                 <AppSidebar />
                 <SidebarInset>
-                    <Navbar />
-                    {children}
-                    <Footer />
+                    <div className="flex justify-between flex-col h-full">
+                        <Navbar />
+                        {children}
+                        <Footer />
+                    </div>
                 </SidebarInset>
             </SidebarProvider>
         </>

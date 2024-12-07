@@ -11,11 +11,12 @@ import { FaRegMoon, FaRegSun } from "react-icons/fa";
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useSession } from 'next-auth/react';
+import { BiLogInCircle } from "react-icons/bi";
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const { toggleSidebar } = useSidebar();
     const { data: session, status } = useSession();
-    
+
     return (
         <>
             <nav className="flex min-w-full py-3 items-center md:px-24 lg:px-36 mx-auto container">
@@ -81,13 +82,19 @@ export default function Navbar() {
                         </div>
                         <div className="hidden lg:flex items-center">
                             {
-                                status === 'authenticated' && (
+                                status === 'authenticated' ? (
                                     <>
                                         <Link href="/cart" className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg" >
                                             <IoCartOutline size={27} />
                                         </Link>
                                         <Link className="ml-3 bg-background px-4 py-2 rounded-lg transition-colors duration-200 text-foreground hover:bg-secondary" href="/profile" >
                                             <CgProfile size={27} />
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link href="/auth" className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg" >
+                                            <BiLogInCircle size={27} />
                                         </Link>
                                     </>
                                 )
