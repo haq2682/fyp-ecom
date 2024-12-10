@@ -34,7 +34,7 @@ export default function OrdersPagination({ totalPages, currentPage, setIsLoading
                         />
                     </PaginationItem>
 
-                    {/* First page */}
+                    
                     <PaginationItem>
                         <PaginationLink
                             onClick={() => handlePageChange(1)}
@@ -45,14 +45,14 @@ export default function OrdersPagination({ totalPages, currentPage, setIsLoading
                         </PaginationLink>
                     </PaginationItem>
 
-                    {/* Ellipsis after first page */}
+                    
                     {currentPage > 3 && (
                         <PaginationItem>
                             <PaginationEllipsis />
                         </PaginationItem>
                     )}
 
-                    {/* Page before current page */}
+                    
                     {currentPage > 2 && currentPage < totalPages && (
                         <PaginationItem>
                             <PaginationLink
@@ -64,7 +64,7 @@ export default function OrdersPagination({ totalPages, currentPage, setIsLoading
                         </PaginationItem>
                     )}
 
-                    {/* Current page */}
+                    
                     {currentPage !== 1 && currentPage !== totalPages && (
                         <PaginationItem>
                             <PaginationLink
@@ -76,7 +76,7 @@ export default function OrdersPagination({ totalPages, currentPage, setIsLoading
                         </PaginationItem>
                     )}
 
-                    {/* Page after current page */}
+                    
                     {currentPage < totalPages - 1 && currentPage > 1 && (
                         <PaginationItem>
                             <PaginationLink
@@ -88,14 +88,14 @@ export default function OrdersPagination({ totalPages, currentPage, setIsLoading
                         </PaginationItem>
                     )}
 
-                    {/* Ellipsis before last page */}
+                    
                     {currentPage < totalPages - 2 && (
                         <PaginationItem>
                             <PaginationEllipsis />
                         </PaginationItem>
                     )}
 
-                    {/* Last page */}
+                    
                     {totalPages > 1 && (
                         <PaginationItem>
                             <PaginationLink
