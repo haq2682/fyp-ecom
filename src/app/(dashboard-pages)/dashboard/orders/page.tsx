@@ -50,9 +50,9 @@ export default function Orders() {
             orderNumber: BigInt(Date.now()),
             totalAmount: 0,
             status: 'placed',
-            userId: 1, // Assuming a default user ID
+            userId: 1, 
           })
-          await fetchOrdersData() // Refetch to update pagination
+          await fetchOrdersData() 
         } catch (error) {
           console.error('Failed to create order:', error)
           setError('Failed to create order. Please try again.')
