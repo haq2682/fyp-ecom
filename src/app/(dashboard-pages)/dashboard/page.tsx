@@ -1,4 +1,6 @@
 'use client'
+
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -7,6 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Table,
   TableBody,
   TableCell,
@@ -14,50 +23,74 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { BarChart, Bar, LineChart, Line, ResponsiveContainer } from 'recharts'
+import { LayoutDashboard, Package, ShoppingCart, Users, Star, Settings, Plus, Menu, X, ChevronDown, Loader2, MoreHorizontal } from 'lucide-react'
+import Link from "next/link"
+import { usePathname } from 'next/navigation'
+import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts'
+import { getSalesData, getTotalCustomers, type SalesPeriod } from "@/actions/getSalesData"
+import { getRecentOrders } from "@/actions/getRecentOrders"
+import { Order } from '@prisma/client'
+import Loading from "@/components/ui/loading"
 
-export default function Dashboard() {
+export default function DashboardPage() {
+  const [salesPeriod, setSalesPeriod] = useState<SalesPeriod>('monthly')
+  const [salesCount, setSalesCount] = useState<number>(0)
+  const [customerCount, setCustomerCount] = useState<number>(0)
+  const [recentOrders, setRecentOrders] = useState<Order[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const pathname = usePathname()
 
-  const salesData = Array.from({ length: 30 }, () => ({
-    value: Math.floor(Math.random() * 300) + 100
-  }))
+  const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const [salesResult, customersResult, ordersResult] = await Promise.all([
+        getSalesData(salesPeriod),
+        getTotalCustomers(),
+        getRecentOrders()
+      ])
+
+      if (typeof salesResult === 'number') {
+        setSalesCount(salesResult)
+      } else {
+        console.error('Unexpected sales data format:', salesResult)
+        setError('Failed to fetch sales data')
+      }
+
+      if (typeof customersResult === 'number') {
+        setCustomerCount(customersResult)
+      } else {
+        console.error('Unexpected customer data format:', customersResult)
+        setError(prev => prev ? `${prev}. Failed to fetch customer data` : 'Failed to fetch customer data')
+      }
+
+      if (Array.isArray(ordersResult)) {
+        setRecentOrders(ordersResult)
+      } else {
+        console.error('Unexpected orders data format:', ordersResult)
+        setError(prev => prev ? `${prev}. Failed to fetch recent orders` : 'Failed to fetch recent orders')
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err)
+      setError('An unexpected error occurred. Please try again later.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [salesPeriod])
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [fetchDashboardData])
 
   const customerData = Array.from({ length: 30 }, () => ({
     value: Math.floor(Math.random() * 100) + 50
   }))
 
-  const recentOrders = [
-    {
-      item: "Mens Black T-Shirts",
-      date: "20 Mar, 2023",
-      total: "$75.00",
-      status: "Processing"
-    },
-    {
-      item: "Essential Neutrals",
-      date: "19 Mar, 2023",
-      total: "$22.00",
-      status: "Processing"
-    },
-    {
-      item: "Sleek and Cozy Black",
-      date: "7 Feb, 2023",
-      total: "$57.00",
-      status: "Completed"
-    },
-    {
-      item: "MOCKUP Black",
-      date: "29 Jan, 2023",
-      total: "$30.00",
-      status: "Completed"
-    },
-    {
-      item: "Monochromatic Wardrobe",
-      date: "27 Jan, 2023",
-      total: "$27.00",
-      status: "Completed"
-    }
-  ]
+  const salesData = Array.from({ length: 30 }, () => ({
+    value: Math.floor(Math.random() * 100) + 50
+  }))
 
   const bestSelling = [
     { name: "Classic Monochrome Tees", sales: "$940" },
@@ -65,19 +98,53 @@ export default function Dashboard() {
     { name: "Essential Neutrals", sales: "$740" }
   ]
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'processing':
+        return 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
+      case 'shipped':
+        return 'bg-blue-50 text-blue-700 ring-blue-600/20'
+      case 'delivered':
+        return 'bg-green-50 text-green-700 ring-green-600/20'
+      default:
+        return 'bg-gray-50 text-gray-700 ring-gray-600/20'
+    }
+  }
+
   return (
-    <div className="flex h-screen bg-background">
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6">
+    <div className="container mx-auto mt-12">
+      {isLoading ? (
+        <div className="flex justify-center items-center h-screen">
+          <Loading />
+        </div>
+      ) : error ? (
+        <div className="text-center text-red-500">{error}</div>
+      ) : (
+        <>
+          <header className="flex justify-between items-center mb-4">
+            <h2 className="text-3xl font-bold">Dashboard</h2>
+          </header>
+
           <div className="grid gap-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-                  <span className="text-xs text-muted-foreground">THIS MONTH</span>
+                  <Select value={salesPeriod} onValueChange={(value: SalesPeriod) => setSalesPeriod(value)}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue placeholder="Select period" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="yearly">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">$4,235</div>
+                  <div className="text-2xl font-bold">
+                    ${salesCount.toLocaleString()}
+                  </div>
                   <div className="h-[80px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={salesData}>
@@ -90,10 +157,12 @@ export default function Dashboard() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Customers</CardTitle>
-                  <span className="text-xs text-muted-foreground">THIS MONTH</span>
+                  <span className="text-xs text-muted-foreground">TOTAL ACTIVE</span>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">2,571</div>
+                  <div className="text-2xl font-bold">
+                    {customerCount.toLocaleString()}
+                  </div>
                   <div className="h-[80px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={customerData}>
@@ -148,23 +217,24 @@ export default function Dashboard() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Total</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>Order Number</TableHead>
+                        <TableHead className="hidden md:table-cell">Date</TableHead>
+                        <TableHead>Total Amount</TableHead>
+                        <TableHead className="hidden sm:table-cell">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {recentOrders.map((order) => (
-                        <TableRow key={order.item}>
-                          <TableCell>{order.item}</TableCell>
-                          <TableCell>{order.date}</TableCell>
-                          <TableCell>{order.total}</TableCell>
-                          <TableCell>
-                            <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${order.status === 'Completed'
-                              ? 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20'
-                              : 'bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-600/20'
-                              }`}>
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium">
+                            {order.orderNumber}
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getStatusColor(order.status)}`}>
                               {order.status}
                             </span>
                           </TableCell>
@@ -176,8 +246,8 @@ export default function Dashboard() {
               </Card>
             </div>
           </div>
-        </main>
-      </div>
+        </>
+      )}
     </div>
   )
 }
