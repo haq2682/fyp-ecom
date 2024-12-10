@@ -11,8 +11,7 @@ export const getRecentOrders = async (): Promise<Order[]> => {
       ORDER BY createdAt DESC
       LIMIT 5
     `;
-    
-    // Convert BigInt to Number for totalAmount
+  
     return result.map(order => ({
       ...order,
       totalAmount: Number(order.totalAmount)
