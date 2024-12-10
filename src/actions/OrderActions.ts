@@ -70,29 +70,29 @@ export const deleteOrder = async (orderId: number): Promise<{ success: boolean }
 export const getOrders = async (searchQuery: string | null, currentPage: number = 1, limit: number = 10): Promise<PaginatedOrders> => {
   try {
     const offset: number = (currentPage - 1) * limit;
-    let result;
+    let result: Order[];
     let totalResult;
 
     if (searchQuery) {
-      result = await prisma.$queryRaw<Order[]>`
-        SELECT id, orderNumber, createdAt, totalAmount, status 
+      result = await prisma.$queryRaw`
+        SELECT "orderNumber", createdAt, "totalAmount", "status" 
         FROM "Order"
-        WHERE CAST(orderNumber AS TEXT) LIKE ${'%' + searchQuery + '%'}
-          OR CAST(totalAmount AS TEXT) LIKE ${'%' + searchQuery + '%'}
-          OR CAST(status AS TEXT) LIKE ${'%' + searchQuery + '%'}
+        WHERE orderNumber LIKE ${'%' + searchQuery + '%'}
+          OR totalAmount LIKE ${'%' + searchQuery + '%'}
+          OR status  LIKE ${'%' + searchQuery + '%'}
         ORDER BY createdAt DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
       totalResult = await prisma.$queryRaw<[{ orders_count: BigInt }]>`
         SELECT COUNT(*) as orders_count 
         FROM "Order"
-        WHERE CAST(orderNumber AS TEXT) LIKE ${'%' + searchQuery + '%'}
-          OR CAST(totalAmount AS TEXT) LIKE ${'%' + searchQuery + '%'}
-          OR CAST(status AS TEXT) LIKE ${'%' + searchQuery + '%'}
+        WHERE orderNumber  LIKE ${'%' + searchQuery + '%'}
+          OR totalAmount  LIKE ${'%' + searchQuery + '%'}
+          OR status LIKE ${'%' + searchQuery + '%'}
       `;
     } else {
       result = await prisma.$queryRaw<Order[]>`
-        SELECT id, orderNumber, createdAt, totalAmount, status 
+        SELECT orderNumber, createdAt, totalAmount, status 
         FROM "Order"
         ORDER BY createdAt DESC
         LIMIT ${limit} OFFSET ${offset}
