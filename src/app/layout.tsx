@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Montserrat } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
 import Providers from "./providers";
 
 // const geistSans = localFont({

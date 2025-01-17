@@ -2,7 +2,7 @@
 import { User } from "@prisma/client"
 import { MoreHorizontal } from 'lucide-react'
 import { Input } from "@/components/ui/input"
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import {
     Table,
     TableBody,
@@ -60,7 +60,7 @@ export default function CustomersTable({
             <TableHeader>
                 <TableRow>
                     <TableHead className="text-center">Customer ID</TableHead>
-                    <TableHead className="text-center">Username</TableHead>
+                    {/* <TableHead className="text-center">Username</TableHead> */}
                     <TableHead className="text-center">Email</TableHead>
                     <TableHead className="text-center">Address</TableHead>
                     <TableHead className="text-center">Action</TableHead>
@@ -70,7 +70,7 @@ export default function CustomersTable({
                 {customers?.map((customer: User) => (
                     <TableRow key={customer.id} className="text-center">
                         <TableCell>{customer.id}</TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                             {editingCustomerId === customer.id ? (
                                 <Input
                                     value={editedCustomer?.username}
@@ -79,7 +79,7 @@ export default function CustomersTable({
                             ) : (
                                 customer.username
                             )}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell>
                             {editingCustomerId === customer.id ? (
                                 <Input
@@ -93,7 +93,7 @@ export default function CustomersTable({
                         <TableCell>
                             {editingCustomerId === customer.id ? (
                                 <Input
-                                    value={editedCustomer?.address}
+                                    value={editedCustomer?.address ?? ''}
                                     onChange={(e) => handleInputChange(e, "address")}
                                 />
                             ) : (

@@ -1,5 +1,6 @@
 "use server";
-import prisma from "@/db"; import { PaginatedCustomers } from "@/types";
+import prisma from "@/db";
+import { PaginatedCustomers } from "@/types";
 import { User } from "@prisma/client";
 
 export const getCustomers = async (searchQuery: string | null, currentPage: number = 1, limit: number = 10): Promise<PaginatedCustomers> => {
@@ -22,6 +23,6 @@ export const getCustomers = async (searchQuery: string | null, currentPage: numb
         }
     }
     catch (error) {
-        throw new Error('An unexpected error occurred');
+        throw new Error(`Failed to fetch customers: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }

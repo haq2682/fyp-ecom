@@ -17,16 +17,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LayoutDashboard, Package, ShoppingCart, Users, Star, Settings, Plus, MoreHorizontal, Search, ChevronRight, Menu, X } from 'lucide-react'
+import { Plus, MoreHorizontal, Search } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from 'next/navigation';
 import { getProducts } from "@/actions/products";
 
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname();
 
   useEffect(() => {
     async function fetchProducts() {
@@ -83,8 +80,6 @@ export default function ProductsPage() {
       image: "https://prod-img.thesouledstore.com/public/theSoul/uploads/catalog/product/1695457335_2236257.jpg?v=2"
     }
   ]
-
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
 
   return (
     <div className="flex h-screen bg-background">

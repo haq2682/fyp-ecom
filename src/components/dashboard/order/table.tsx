@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from "react"
-import { Order } from "@prisma/client"
+import { Order, Status } from "@prisma/client"  // Import Status type
 import { MoreHorizontal } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import {
@@ -28,7 +28,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-const ORDER_STATUSES = ['placed', 'processing', 'delivered', 'cancelled']
+// Define order statuses with proper typing
+const ORDER_STATUSES: Status[] = ['placed', 'processing', 'delivered', 'cancelled'] as Status[]
 
 interface OrdersTableProps {
     orders: Order[]
@@ -127,7 +128,11 @@ export default function OrdersTable({
                             {editingOrderId === order.id ? (
                                 <Select
                                     value={editedOrder?.status}
-                                    onValueChange={(value) => setEditedOrder(prev => ({ ...prev!, status: value }))}
+                                    onValueChange={(value: Status) => {
+                                        if (editedOrder) {
+                                            setEditedOrder({ ...editedOrder, status: value })
+                                        }
+                                    }}
                                 >
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select status" />

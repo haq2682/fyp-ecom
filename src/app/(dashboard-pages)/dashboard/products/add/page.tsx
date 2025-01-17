@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from "react"
-import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight, Upload, X } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,16 +17,7 @@ import {
 
 export default function AddProductPage() {
   const [selectedImages, setSelectedImages] = useState<string[]>([])
-  const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
-
-  const colors = [
-    { name: 'Blue', value: 'bg-blue-900' },
-    { name: 'black', value: 'bg-black border border-gray-400' },
-    { name: 'white', value: 'bg-white border border-gray-400' },
-    { name: 'gray', value: 'bg-gray-500' },
-    { name: 'green', value: 'bg-green-900' }
-  ]
 
   const sizes = ['S', 'M', 'X', 'XL', 'XXL']
 
@@ -41,14 +31,6 @@ export default function AddProductPage() {
 
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const toggleColor = (color: string) => {
-    setSelectedColors(prev =>
-      prev.includes(color)
-        ? prev.filter(c => c !== color)
-        : [...prev, color]
-    )
   }
 
   const toggleSize = (size: string) => {

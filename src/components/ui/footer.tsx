@@ -1,11 +1,8 @@
 "use client"
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
 import { SiVisa } from "react-icons/si";
 import { SiMastercard } from "react-icons/si";
 import { GrAmex } from "react-icons/gr";
 export default function Footer() {
-    const { theme, setTheme } = useTheme();
     return (
         <>
             <footer className="bg-secondary">

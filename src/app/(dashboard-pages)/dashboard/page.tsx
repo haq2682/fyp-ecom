@@ -23,10 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { LayoutDashboard, Package, ShoppingCart, Users, Star, Settings, Plus, Menu, X, ChevronDown, Loader2, MoreHorizontal } from 'lucide-react'
-import Link from "next/link"
-import { usePathname } from 'next/navigation'
-import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts'
+import { BarChart, Bar, LineChart, Line, ResponsiveContainer } from 'recharts'
 import { getSalesData, getTotalCustomers, type SalesPeriod } from "@/actions/getSalesData"
 import { getRecentOrders } from "@/actions/getRecentOrders"
 import { Order } from '@prisma/client'
@@ -39,12 +36,11 @@ export default function DashboardPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const pathname = usePathname()
 
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const [salesResult, customersResult, ordersResult] = await Promise.all([
         getSalesData(salesPeriod),

@@ -15,7 +15,7 @@ import { BiLogInCircle } from "react-icons/bi";
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const { toggleSidebar } = useSidebar();
-    const { data: session, status } = useSession();
+    const { status } = useSession();
 
     return (
         <>

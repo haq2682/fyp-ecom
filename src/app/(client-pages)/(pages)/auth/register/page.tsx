@@ -25,8 +25,7 @@ export default function Register() {
                                     type="text"
                                     className={`
                                         rounded-sm
-                                        ${
-                                            state.errors?.name && 'border border-destructive'
+                                        ${state.errors?.name && 'border border-destructive'
                                         }
                                     `}
                                     required
@@ -36,7 +35,7 @@ export default function Register() {
                                 />
                                 <div className="text-sm text-destructive mt-2">
                                     {
-                                        state.errors?.name && (state.errors?.name?.map((error) => <div className="my-1">{error}</div>))
+                                        state.errors?.name && (state.errors?.name?.map((error, index) => <div key={index} className="my-1">{error}</div>))
                                     }
                                 </div>
                             </div>
@@ -46,18 +45,17 @@ export default function Register() {
                                     type="email"
                                     className={`
                                         rounded-sm
-                                        ${
-                                            state.errors?.email && 'border border-destructive'
+                                        ${state.errors?.email && 'border border-destructive'
                                         }
                                     `}
                                     required
                                     name="email"
                                     value={formState.email}
-                                    onChange={(e) => setFormState({...formState, email: e.target.value})}
+                                    onChange={(e) => setFormState({ ...formState, email: e.target.value })}
                                 />
                                 <div className="text-sm text-destructive mt-2">
                                     {
-                                        state.errors?.email && (state.errors?.email?.map((error) => <div className="my-1">{error}</div>))
+                                        state.errors?.email && (state.errors?.email?.map((error, index) => <div key={index} className="my-1">{error}</div>))
                                     }
                                 </div>
                             </div>
@@ -68,18 +66,17 @@ export default function Register() {
                                     className={`
                                         rounded-sm
                                         mb-3
-                                        ${
-                                            state.errors?.password && 'border border-destructive'
+                                        ${state.errors?.password && 'border border-destructive'
                                         }
                                     `}
                                     required
                                     name="password"
                                     value={formState.password}
-                                    onChange={(e) => setFormState({...formState, password: e.target.value})}
+                                    onChange={(e) => setFormState({ ...formState, password: e.target.value })}
                                 />
                                 <div className="text-sm text-destructive mt-2">
                                     {
-                                        state.errors?.password && (state.errors?.password?.map((error) => <div className="my-1">{error}</div>))
+                                        state.errors?.password && (state.errors?.password?.map((error, index) => <div key={index} className="my-1">{error}</div>))
                                     }
                                 </div>
                             </div>
@@ -90,18 +87,17 @@ export default function Register() {
                                     className={`
                                         rounded-sm
                                         mb-3
-                                        ${
-                                            state.errors?.confirm_password && 'border border-destructive'
+                                        ${state.errors?.confirm_password && 'border border-destructive'
                                         }
                                     `}
                                     required
                                     name="confirm_password"
                                     value={formState.confirm_password}
-                                    onChange={(e) => setFormState({...formState, confirm_password: e.target.value})}
+                                    onChange={(e) => setFormState({ ...formState, confirm_password: e.target.value })}
                                 />
                                 <div className="text-sm text-destructive mt-2">
                                     {
-                                        state.errors?.confirm_password && (state.errors?.confirm_password?.map((error) => <div className="my-1">{error}</div>))
+                                        state.errors?.confirm_password && (state.errors?.confirm_password?.map((error, index) => <div key={index} className="my-1">{error}</div>))
                                     }
                                 </div>
                             </div>

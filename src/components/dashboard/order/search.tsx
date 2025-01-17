@@ -3,8 +3,13 @@
 import { Input } from "@/components/ui/input";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
+import { Search } from "lucide-react";
 
-export default function OrderSearch() {
+interface OrderSearchProps {
+    onSearch: (query: string) => void;
+}
+
+export default function OrderSearch({ onSearch }: OrderSearchProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -17,14 +22,18 @@ export default function OrderSearch() {
             params.delete('query');
         }
         replace(`${pathname}?${params.toString()}`);
+        onSearch(term);
     }, 300);
 
     return (
-        <Input 
-            className="w-full md:w-1/2 lg:w-1/3"
-            placeholder="Search Orders"
-            onChange={(e) => handleSearch(e.target.value)}
-            defaultValue={searchParams.get('query')?.toString()}
-        />
+        <div className="relative w-full md:w-1/2 lg:w-1/3">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+                className="pl-8"
+                placeholder="Search orders..."
+                onChange={(e) => handleSearch(e.target.value)}
+                defaultValue={searchParams.get('query')?.toString()}
+            />
+        </div>
     );
 }

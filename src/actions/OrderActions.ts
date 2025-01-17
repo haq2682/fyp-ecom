@@ -1,20 +1,9 @@
 'use server'
 
-import prisma from "@/db";
-import { revalidatePath } from "next/cache";
-import { Order, Prisma,Status } from "@prisma/client";
-
-export type PaginatedOrders = {
-  result: {
-    id: number;
-    orderNumber: string;
-    createdAt: Date;
-    totalAmount: number;
-    status: Status;
-  }[];
-  total: number;
-  totalPages: number;
-}
+import prisma from "@/db"
+import { revalidatePath } from "next/cache"
+import { Order, PaginatedOrders } from "@/types"
+import { Status } from "@prisma/client"
 
 export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt'>): Promise<Order> => {
   try {
@@ -25,103 +14,122 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt'>): P
         status: orderData.status,
         userId: orderData.userId,
       },
-    });
+    })
 
-    revalidatePath('/orders');
-    return result;
+    revalidatePath('/orders')
+    return {
+      ...result,
+      orderNumber: result.orderNumber,
+      totalAmount: Number(result.totalAmount),
+    }
   } catch (error) {
-    console.error("Error creating order:", error);
-    throw new Error("Failed to create order");
+    console.error("Error creating order:", error)
+    throw new Error("Failed to create order")
   }
-};
+}
 
 export const updateOrder = async (orderId: number, orderData: Partial<Order>): Promise<Order> => {
   try {
     const result = await prisma.order.update({
       where: { id: orderId },
       data: {
-        totalAmount: orderData.totalAmount ? new Prisma.Decimal(orderData.totalAmount.toString()) : undefined,
-        status: orderData.status,
+        totalAmount: orderData.totalAmount
+          ? { set: Number(orderData.totalAmount) }
+          : undefined,
+        status: orderData.status as Status,
       },
-    });
+    })
 
-    revalidatePath('/orders');
-    return result;
+    revalidatePath('/orders')
+    return {
+      ...result,
+      orderNumber: result.orderNumber,
+      totalAmount: Number(result.totalAmount),
+    }
   } catch (error) {
-    console.error("Error updating order:", error);
-    throw new Error("Failed to update order");
+    console.error("Error updating order:", error)
+    throw new Error("Failed to update order")
   }
-};
+}
+
 export const deleteOrder = async (orderId: number): Promise<{ success: boolean }> => {
   try {
     await prisma.$executeRaw`
       DELETE FROM "Order"
       WHERE "id" = ${orderId}
-    `;
+    `
 
-    revalidatePath('/orders');
-    return { success: true };
+    revalidatePath('/orders')
+    return { success: true }
   } catch (error) {
-    console.error("Error deleting order:", error);
-    throw new Error("Failed to delete order");
+    console.error("Error deleting order:", error)
+    throw new Error("Failed to delete order")
   }
-};
+}
 
 export const getOrders = async (searchQuery: string | null, currentPage: number = 1, limit: number = 10): Promise<PaginatedOrders> => {
   try {
-    const offset: number = (currentPage - 1) * limit;
-    let result: Order[];
-    let totalResult;
+    const offset: number = (currentPage - 1) * limit
+    let result: Array<{
+      id: number;
+      orderNumber: bigint;
+      createdAt: Date;
+      totalAmount: bigint;
+      status: Status;
+      userId: number;
+    }>
+    let totalResult
 
     if (searchQuery) {
       result = await prisma.$queryRaw`
-        SELECT "orderNumber", createdAt, "totalAmount", "status" 
+        SELECT id, "orderNumber", createdAt, "totalAmount", "status", "userId" 
         FROM "Order"
-        WHERE orderNumber LIKE ${'%' + searchQuery + '%'}
-          OR totalAmount LIKE ${'%' + searchQuery + '%'}
-          OR status  LIKE ${'%' + searchQuery + '%'}
+        WHERE "orderNumber" LIKE ${'%' + searchQuery + '%'}
+          OR "totalAmount"::text LIKE ${'%' + searchQuery + '%'}
+          OR "status"::text LIKE ${'%' + searchQuery + '%'}
         ORDER BY createdAt DESC
         LIMIT ${limit} OFFSET ${offset}
-      `;
-      totalResult = await prisma.$queryRaw<[{ orders_count: BigInt }]>`
+      `
+      totalResult = await prisma.$queryRaw<[{ orders_count: bigint }]>`
         SELECT COUNT(*) as orders_count 
         FROM "Order"
-        WHERE orderNumber  LIKE ${'%' + searchQuery + '%'}
-          OR totalAmount  LIKE ${'%' + searchQuery + '%'}
-          OR status LIKE ${'%' + searchQuery + '%'}
-      `;
+        WHERE "orderNumber" LIKE ${'%' + searchQuery + '%'}
+          OR "totalAmount"::text LIKE ${'%' + searchQuery + '%'}
+          OR "status"::text LIKE ${'%' + searchQuery + '%'}
+      `
     } else {
-      result = await prisma.$queryRaw<Order[]>`
-        SELECT orderNumber, createdAt, totalAmount, status 
+      result = await prisma.$queryRaw`
+        SELECT id, "orderNumber", createdAt, "totalAmount", "status", "userId" 
         FROM "Order"
         ORDER BY createdAt DESC
         LIMIT ${limit} OFFSET ${offset}
-      `;
-      totalResult = await prisma.$queryRaw<[{ orders_count: BigInt }]>`
+      `
+      totalResult = await prisma.$queryRaw<[{ orders_count: bigint }]>`
         SELECT COUNT(*) AS orders_count FROM "Order"
-      `;
+      `
     }
 
-    const formattedResult = result.map(order => ({
+    const formattedResult: Order[] = result.map(order => ({
       ...order,
-      orderNumber: order.orderNumber.toString(),
-      totalAmount: Number(order.totalAmount)
-    }));
+      orderNumber: order.orderNumber,
+      totalAmount: Number(order.totalAmount),
+    }))
 
-    const total: number = Number(totalResult[0].orders_count);
-    const totalPages: number = Math.ceil(total / limit);
+    const total: number = Number(totalResult[0].orders_count)
+    const totalPages: number = Math.ceil(total / limit)
 
-    return { 
-      result: formattedResult, 
-      total, 
-      totalPages 
-    };
+    return {
+      result: formattedResult,
+      total,
+      totalPages,
+    }
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error('Error fetching orders:', error)
     return {
       result: [],
       total: 0,
-      totalPages: 0
-    };
+      totalPages: 0,
+    }
   }
 }
+

@@ -20,5 +20,8 @@ export async function getProducts() {
             handle: 'sample-product',
         },
     });
-    return data;
+    if (errors) {
+        return errors;
+    }
+    return [data, extensions];
 }
