@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -20,12 +20,21 @@ import {
 import { LayoutDashboard, Package, ShoppingCart, Users, Star, Settings, Plus, MoreHorizontal, Search, ChevronRight, Menu, X } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation';
+import { getProducts } from "@/actions/products";
 
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname()
+  const pathname = usePathname();
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const res = await getProducts();
+      console.log(res);
+    }
+    fetchProducts();
+  }, []);
 
   const products = [
     {
