@@ -1,4 +1,5 @@
 import { User } from "@prisma/client"
+import { Status } from '@prisma/client';
 
 export type typeResponseError = {
     message: string,
@@ -11,7 +12,15 @@ export type PaginatedCustomers = {
     totalPages: number
 }
 
-import { Status } from '@prisma/client';
+export type Product = {
+    id: number,
+    name: string,
+    sku: string,
+    price: number,
+    stock: string,
+    category: string,
+    image: string
+}
 
 export interface Order {
     id: number;

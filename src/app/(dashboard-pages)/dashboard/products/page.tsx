@@ -20,66 +20,34 @@ import {
 import { Plus, MoreHorizontal, Search } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
-import { getProducts } from "@/actions/products";
+import { getProducts } from "@/actions/products"
+import { Product } from "@/types"
 
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchProducts() {
-      const res = await getProducts();
-      console.log(res);
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchProducts();
   }, []);
 
-  const products = [
-    {
-      id: 1,
-      name: "Raw Black T-Shirt Lineup",
-      sku: "47514501",
-      price: 75.00,
-      stock: "In Stock",
-      category: "T-shirt, Men",
-      image: "https://prod-img.thesouledstore.com/public/theSoul/uploads/catalog/product/1695457335_2236257.jpg?v=2"
-    },
-    {
-      id: 2,
-      name: "Classic Monochrome Tees",
-      sku: "47514501",
-      price: 35.00,
-      stock: "In Stock",
-      category: "T-shirt, Men",
-      image: "https://prod-img.thesouledstore.com/public/theSoul/uploads/catalog/product/1695457335_2236257.jpg?v=2"
-    },
-    {
-      id: 3,
-      name: "Monochromatic Wardrobe",
-      sku: "47514501",
-      price: 27.00,
-      stock: "In Stock",
-      category: "T-shirt",
-      image: "https://prod-img.thesouledstore.com/public/theSoul/uploads/catalog/product/1695457335_2236257.jpg?v=2"
-    },
-    {
-      id: 4,
-      name: "Essential Neutrals",
-      sku: "47514501",
-      price: 22.00,
-      stock: "In Stock",
-      category: "T-shirt, Raw",
-      image: "https://prod-img.thesouledstore.com/public/theSoul/uploads/catalog/product/1695457335_2236257.jpg?v=2"
-    },
-    {
-      id: 5,
-      name: "UTRAANET Black",
-      sku: "47514501",
-      price: 43.00,
-      stock: "In Stock",
-      category: "T-shirt, Trend",
-      image: "https://prod-img.thesouledstore.com/public/theSoul/uploads/catalog/product/1695457335_2236257.jpg?v=2"
-    }
-  ]
+  // Filter products based on search query
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="flex h-screen bg-background">
@@ -119,7 +87,13 @@ export default function ProductsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((product) => (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">
+                        Loading products...
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredProducts.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
@@ -129,6 +103,7 @@ export default function ProductsPage() {
                             width={40}
                             height={40}
                             className="rounded"
+                            unoptimized
                           />
                           <span className="hidden sm:inline">{product.name}</span>
                           <span className="sm:hidden">{product.name.slice(0, 20)}...</span>
@@ -137,7 +112,10 @@ export default function ProductsPage() {
                       <TableCell>{product.sku}</TableCell>
                       <TableCell>${product.price.toFixed(2)}</TableCell>
                       <TableCell>
-                        <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${product.stock === "In Stock"
+                            ? "bg-green-50 text-green-700 ring-green-600/20"
+                            : "bg-red-50 text-red-700 ring-red-600/20"
+                          }`}>
                           {product.stock}
                         </span>
                       </TableCell>
