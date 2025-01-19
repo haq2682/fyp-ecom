@@ -1,10 +1,22 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { FaArrowRight } from "react-icons/fa6";
 import { LuShieldCheck, LuTruck } from "react-icons/lu";
 import { RiMedalLine } from "react-icons/ri";
 import ProductItem from "@/components/product/product-item";
+import { getCategories } from "@/actions/products";
 export default function Home() {
+    const [categories, setCategories] = useState(null);
+
+    useEffect(() => {
+        async function fetchCategories() {
+            const response = await getCategories();
+            console.log(response);
+        }
+        fetchCategories();
+    }, []);
     return (
         <>
             <div className="space-y-12">
