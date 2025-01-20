@@ -1,22 +1,47 @@
-import { PrismaClient } from '@prisma/client';
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials";
-import { User, Role } from '@prisma/client';
 import crypto from 'crypto';
-import bcrypt from 'bcrypt';
+import storefront from '@/utils/shopify';
 
-const prisma = new PrismaClient();
+const CREATE_CUSTOMER_MUTATION = `
+  mutation customerCreate($input: CustomerCreateInput!) {
+    customerCreate(input: $input) {
+      customer {
+        id
+        email
+        firstName
+        lastName
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+const CUSTOMER_ACCESS_TOKEN_CREATE = `
+  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+    customerAccessTokenCreate(input: $input) {
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
 
 function generateRandomString(length: number): string {
     return crypto.randomBytes(Math.ceil(length / 2))
         .toString('hex')
         .slice(0, length);
-}
-
-async function hashString(str: string): Promise<string> {
-    const saltRounds = 10;
-    return bcrypt.hash(str, saltRounds);
 }
 
 export const authOptions: NextAuthOptions = {
@@ -36,27 +61,31 @@ export const authOptions: NextAuthOptions = {
                     return null;
                 }
 
-                const users = await prisma.$queryRaw<User[]>`
-                    SELECT * FROM "User" WHERE email = ${credentials.email} LIMIT 1
-                `;
+                try {
+                    const response = await storefront(CUSTOMER_ACCESS_TOKEN_CREATE, {
+                        input: {
+                            email: credentials.email,
+                            password: credentials.password
+                        }
+                    });
 
-                if (users.length === 0) {
+                    const { customerAccessTokenCreate } = response.data;
+
+                    if (customerAccessTokenCreate.customerUserErrors.length > 0) {
+                        return null;
+                    }
+
+                    const accessToken = customerAccessTokenCreate.customerAccessToken.accessToken;
+
+                    return {
+                        id: accessToken,
+                        email: credentials.email,
+                        accessToken
+                    };
+                } catch (error) {
+                    console.error('Authorization error:', error);
                     return null;
                 }
-
-                const user = users[0];
-                const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-
-                if (!isPasswordValid) {
-                    return null;
-                }
-
-                return {
-                    id: user.id.toString(),
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                };
             }
         }),
     ],
@@ -65,65 +94,60 @@ export const authOptions: NextAuthOptions = {
             if (account?.provider === 'google') {
                 const { email, name } = user;
                 const password = generateRandomString(10);
-                const hashedPassword = await hashString(password);
 
                 try {
-                    const existingUsers = await prisma.$queryRaw<User[]>`
-                        SELECT * FROM "User" WHERE email = ${email} LIMIT 1
-                    `;
+                    const nameParts = (name || '').split(' ');
+                    const firstName = nameParts[0] || '';
+                    const lastName = nameParts.slice(1).join(' ') || '';
 
-                    if (existingUsers.length === 0) {
-                        await prisma.$executeRaw`
-                            INSERT INTO "User" (name, email, password, role, "createdAt", "updatedAt")
-                            VALUES (${name}, ${email}, ${hashedPassword}, 'customer', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        `;
+                    const createCustomerResponse = await storefront(CREATE_CUSTOMER_MUTATION, {
+                        input: {
+                            email,
+                            password,
+                            firstName,
+                            lastName,
+                            acceptsMarketing: false
+                        }
+                    });
+
+                    const { customerCreate } = createCustomerResponse.data;
+
+                    if (customerCreate.customerUserErrors.length > 0) {
+                        const error = customerCreate.customerUserErrors[0];
+                        if (error.code === 'CUSTOMER_DISABLED' || error.code === 'UNIDENTIFIED_CUSTOMER') {
+                            return false;
+                        }
                     }
 
                     return true;
                 } catch (error) {
-                    console.error('Error during sign in:', error);
+                    console.error('Error during Google sign in:', error);
                     return false;
                 }
             }
             return true;
         },
-        async jwt({ token, user }) {
-            if (user) {
-                const dbUsers = await prisma.$queryRaw<User[]>`
-                    SELECT * FROM "User" WHERE email = ${user.email} LIMIT 1
-                `;
-
-                if (dbUsers.length > 0) {
-                    const dbUser = dbUsers[0];
-                    token.id = dbUser.id;
-                    token.name = dbUser.name;
-                    token.email = dbUser.email;
-                    token.address = dbUser.address;
-                    token.contact = dbUser.contact;
-                    token.role = dbUser.role;
-                    token.createdAt = dbUser.createdAt;
-                    token.updatedAt = dbUser.updatedAt;
-                }
+        async jwt({ token, user, account }) {
+            if (user && account?.provider === 'credentials') {
+                token.accessToken = (user as any).accessToken;
             }
             return token;
         },
         async session({ session, token }) {
-            if (token && session.user) {
-                session.user.id = token.id as number;
-                session.user.name = token.name as string;
-                session.user.email = token.email as string;
-                session.user.address = token.address as string | null;
-                session.user.contact = token.contact as string | null;
-                session.user.role = token.role as Role;
-                session.user.createdAt = token.createdAt as Date;
-                session.user.updatedAt = token.updatedAt as Date;
+            if (token) {
+                (session as any).accessToken = token.accessToken;
             }
             return session;
         },
         async redirect({ url, baseUrl }) {
-            console.log(url);
+            if (url.startsWith(baseUrl)) {
+                return url;
+            }
             return baseUrl;
         }
+    },
+    pages: {
+        signIn: `${process.env.SHOPIFY_STORE_DOMAIN}/auth`,
     },
     session: {
         strategy: 'jwt'

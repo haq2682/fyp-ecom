@@ -16,6 +16,7 @@ export default async function storefront(query: string, variables = {}) {
   }
   
   catch(error) {
+    console.log(error);
     if (axios.isAxiosError(error)) {
       console.error('Axios Error:', error.response?.data);
       throw new Error('API request failed');
