@@ -6,16 +6,63 @@ import { FaArrowRight } from "react-icons/fa6";
 import { LuShieldCheck, LuTruck } from "react-icons/lu";
 import { RiMedalLine } from "react-icons/ri";
 import ProductItem from "@/components/product/product-item";
-import { getCategories } from "@/actions/products";
+import { getCategories, getHomeBestSellingProducts, getHomeLatestProducts } from "@/actions/products";
+import { HomeProduct } from "@/types";
 export default function Home() {
     const [categories, setCategories] = useState(null);
+    const [bestSellingProducts, setBestSellingProducts] = useState<HomeProduct[] | null>(null);
+    const [bestSellingLoading, setBestSellingLoading] = useState<boolean>(false);
+    const [bestSellingError, setBestSellingError] = useState<string>('');
+    const [latestProducts, setLatestProducts] = useState<HomeProduct[] | null>(null);
+    const [latestProductsLoading, setLatestProductsLoading] = useState<boolean>(false);
+    const [latestProductsError, setLatestProductsError] = useState<string>('');
+
+    useEffect(() => {
+        const fetchBestSellingProducts = async () => {
+            setBestSellingError('');
+            setBestSellingLoading(true);
+            try {
+                const response: HomeProduct[] = await getHomeBestSellingProducts();
+                setBestSellingProducts(response);
+            }
+            catch(error) {
+                console.error(error);
+                setBestSellingError('An error occurred while fetching Best Selling Products');
+            }
+            finally {
+                setBestSellingLoading(false);
+            }
+        }
+
+        fetchBestSellingProducts();
+    }, []);
+
+    useEffect(() => {
+        const fetchLatestProducts = async () => {
+            setLatestProductsError('');
+            setLatestProductsLoading(true);
+            try {
+                const response: HomeProduct[] = await getHomeLatestProducts();
+                setLatestProducts(response);
+            }
+            catch (error) {
+                console.error(error);
+                setLatestProductsError('An error occurred while fetching Latest Products');
+            }
+            finally {
+                setLatestProductsLoading(false);
+            }
+        }
+
+        fetchLatestProducts();
+    }, []);
 
     useEffect(() => {
         async function fetchCategories() {
             const response = await getCategories();
             console.log(response);
         }
-        fetchCategories();
+        // fetchCategories();
     }, []);
     return (
         <>
@@ -65,10 +112,22 @@ export default function Home() {
                         <h1 className="text-3xl font-bold">Best Selling</h1>
                     </div>
                     <div className="flex items-center flex-wrap justify-center md:justify-between">
-                        <ProductItem />
-                        <ProductItem />
-                        <ProductItem />
-                        <ProductItem />
+                        {
+                            bestSellingLoading ? (
+                                <div className="text-center w-full">Loading...</div>
+                            ) : (
+                                bestSellingError ? (
+                                <div className="text-red-500 text-center w-full">{bestSellingError}</div>
+                            ) : (
+                                bestSellingProducts && bestSellingProducts.map((product: HomeProduct, index: number) => {
+                                    return (
+                                        <>
+                                            <ProductItem key={index} {...product}/>
+                                        </>
+                                    )
+                                })
+                            ))
+                        }
                     </div>
                 </div>
                 <div className="bg-secondary">
@@ -89,10 +148,22 @@ export default function Home() {
                         <h1 className="text-3xl font-bold">Latest</h1>
                     </div>
                     <div className="flex items-center flex-wrap justify-center md:justify-between">
-                        <ProductItem />
-                        <ProductItem />
-                        <ProductItem />
-                        <ProductItem />
+                        {
+                            latestProductsLoading ? (
+                                <div className="text-center w-full">Loading...</div>
+                            ) : (
+                                latestProductsError ? (
+                                    <div className="text-red-500 text-center w-full">{latestProductsError}</div>
+                                ) : (
+                                    latestProducts && latestProducts.map((product: HomeProduct, index: number) => {
+                                        return (
+                                            <>
+                                                <ProductItem key={index} {...product} />
+                                            </>
+                                        )
+                                    })
+                                ))
+                        }
                     </div>
                 </div>
             </div >

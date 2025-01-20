@@ -45,3 +45,14 @@ export interface PaginatedOrders {
     total: number;
     totalPages: number;
 }
+
+export interface HomeProduct {
+    id: string,
+    inStock: boolean,
+    price: number,
+    discountedPrice: number,
+    currency: string,
+    imageSrc: string,
+    imageAlt: string,
+    title: string,
+}

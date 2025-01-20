@@ -9,8 +9,8 @@ export default async function storefront(query: string, variables = {}) {
       query,
       variables
     });
-    if (response.data.errors) {
-      throw new Error(response.data.errors);
+    if (response.data.errors?.length > 0) {
+      throw new Error(response.data.errors[0]);
     }
     return response.data;
   }

@@ -2,6 +2,7 @@
 
 import { gql } from 'graphql-request';
 import storefront from '@/utils/shopify';
+import { HomeProduct } from '@/types';
 
 export async function getCategories() {
   const categoriesQuery = gql`
@@ -30,6 +31,179 @@ export async function getCategories() {
   }
 }
 
+export async function getHomeBestSellingProducts(): Promise<HomeProduct[]> {
+  const query = gql`
+    query {
+  products(first: 4, sortKey: BEST_SELLING) {
+    nodes {
+      id
+      title
+      availableForSale
+      compareAtPriceRange {
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+      featuredImage {
+        altText
+        url(transform: {maxHeight: 600, maxWidth: 300, crop: CENTER})
+      }
+      priceRange {
+        minVariantPrice {
+          currencyCode
+          amount
+        }
+      }
+    }
+  }
+    }
+  `;
+
+  try {
+    const response = await storefront(query);
+    const products: HomeProduct[] = processResponse(response);
+    return products;
+  }
+  catch(error) {
+    console.error('Error fetching Best Selling Products', error);
+    throw new Error('Failed to fetch Best Selling Products');
+  }
+}
+
+export async function getHomeLatestProducts(): Promise<HomeProduct[]> {
+  const query = gql`
+    query {
+  products(first: 4, sortKey: CREATED_AT, reverse: true) {
+    nodes {
+      id
+      availableForSale
+      compareAtPriceRange {
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+      featuredImage {
+        altText
+        url(transform: {maxHeight: 600, maxWidth: 300, crop: CENTER})
+      }
+      priceRange {
+        minVariantPrice {
+          currencyCode
+          amount
+        }
+      }
+      title
+    }
+  }
+}
+  `;
+  try {
+    const response = await storefront(query);
+    const products: HomeProduct[] = processResponse(response);
+    return products;
+  }
+  catch (error) {
+    console.error('Error fetching Latest Products', error);
+    throw new Error('Failed to fetch Latest Products');
+  }
+}
+
+export async function getIndividualProduct(id: string): Promise<any> {
+  // Note the change from 'gid:/shopify' to 'gid://shopify'
+  const gid = `gid://shopify/Product/${id}`;
+  const newId = btoa(gid);
+
+  const query = gql`
+    query($id: ID!) {
+      product(id: $id) {
+        id
+        title
+        availableForSale
+        description
+        images(first: 10) {
+          nodes {
+            url(transform: {maxHeight: 600, maxWidth: 600, crop: CENTER})
+            altText
+          }
+        }
+        variants(first: 20) {
+          nodes {
+            id
+            title
+            availableForSale
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
+            selectedOptions {
+              name
+              value
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await storefront(query, { id: newId });
+
+    // Process the response
+    const product = response.data.product;
+    const idParts = product.id.split("/");
+    const productId = idParts[idParts.length - 1];
+    return {
+      data: {
+        id: productId,
+        title: product.title,
+        inStock: product.availableForSale,
+        description: product.description,
+        images: product.images.nodes.map((image: any) => ({
+          src: image.url,
+          alt: image.altText || product.title
+        })),
+        variants: product.variants.nodes.map((variant: any) => ({
+          id: variant.id,
+          title: variant.title,
+          inStock: variant.availableForSale,
+          price: Number(variant.price.amount),
+          currency: variant.price.currencyCode,
+          discountedPrice: variant.compareAtPrice ? Number(variant.compareAtPrice.amount) : null,
+          size: variant.selectedOptions.find((opt: any) => opt.name === "Size")?.value || null
+        }))
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching Individual Product', error);
+    throw new Error('Failed to fetch Individual Product');
+  }
+}
+
+//Local Helper Functions
+const processResponse = (response: {data: {products: {nodes: BestOrLatestProduct[]}}}): HomeProduct[] => {
+  const products: HomeProduct[] = response.data.products.nodes.map((product: BestOrLatestProduct) => {
+    const idParts = product.id.split("/");
+    const productId = idParts[idParts.length - 1];
+    return {
+      id: productId,
+      title: product.title,
+      inStock: product.availableForSale,
+      price: Number(product.priceRange.minVariantPrice.amount),
+      currency: product.priceRange.minVariantPrice.currencyCode,
+      imageSrc: product.featuredImage.url,
+      imageAlt: product.featuredImage.altText,
+      discountedPrice: Number(product.compareAtPriceRange.minVariantPrice.amount),
+    }
+  });
+  return products;
+}
+
 // Local Types
 type CategoryProductNode = {
   id: string;
@@ -38,4 +212,26 @@ type CategoryProductNode = {
     id: string,
     name: string
   };
+}
+
+type BestOrLatestProduct = {
+  id: string,
+  availableForSale: boolean;
+  compareAtPriceRange: {
+    minVariantPrice: {
+      amount: string,
+      currencyCode: string
+    }
+  }
+  featuredImage: {
+    altText: string,
+    url: string
+  }
+  priceRange: {
+    minVariantPrice: {
+      currencyCode: string,
+      amount: string,
+    }
+  }
+  title: string
 }

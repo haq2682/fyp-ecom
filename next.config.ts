@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
         hostname: "prod-img.thesouledstore.com",
         port: "",
         pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+        port: "",
+        pathname: "/**"
       }
     ]
   }
