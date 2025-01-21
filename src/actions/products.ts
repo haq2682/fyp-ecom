@@ -31,6 +31,105 @@ export async function getCategories() {
   }
 }
 
+export async function getProductTypes() {
+  const productTypesQuery = gql`
+    query {
+      productTypes(first: 250) {
+        nodes
+      }
+    }
+  `;
+
+  try {
+    const response = await storefront(productTypesQuery);
+    
+    const productTypes = new Set(
+      response.data.productTypes.nodes.filter((type: string) => type !== "")
+    );
+    
+    return productTypes;
+  } catch (error) {
+    console.error('Error fetching product types', error);
+    throw new Error('Failed to fetch product types');
+  }
+}
+
+export async function searchProducts(searchParams: {
+  query?: string
+  category?: string
+  minPrice?: number
+  maxPrice?: number
+  size?: string
+  type?: string
+}): Promise<HomeProduct[]> {
+  const { query, category, minPrice, maxPrice, size, type } = searchParams
+  const filters: string[] = []
+
+  if (query) {
+    filters.push(`title:${query}`) 
+  }
+
+  if (category) {
+    filters.push(` (category:${category}) `)
+  }
+  if (type) {
+    filters.push(` (product_type:${type}) `)
+  }
+  console.log(type)
+  console.log(category)
+  if (minPrice || maxPrice) {
+    const priceFilter = [
+      minPrice ? `variants.price:>=${minPrice}` : null,
+      maxPrice ? `variants.price:<=${maxPrice}` : null,
+    ]
+      .filter(Boolean)
+      .join(" AND ")
+    if (priceFilter) {
+      filters.push(`(${priceFilter})`)
+    }
+  }
+
+  if (size) {
+    filters.push(`variants.option1:${size}`)
+  }
+  console.log(filters)
+  const quer = gql`
+    query ($filters: String!) {
+      products(first: 250, query: $filters) {
+        nodes {
+          id
+          title
+          availableForSale
+          compareAtPriceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          featuredImage {
+            altText
+            url(transform: {maxHeight: 230, maxWidth: 200, crop: CENTER})
+          }
+          priceRange {
+            minVariantPrice {
+              currencyCode
+              amount
+            }
+          }
+         
+        }
+      }
+    }`
+  try {
+    const response = await storefront(quer, { filters: filters.join(" AND ") })
+    const products: HomeProduct[] = processResponse(response)
+    return products
+  } catch (error) {
+    console.error("Error searching products", error)
+    throw new Error("Failed to search products")
+  }
+}
+
 export async function getHomeBestSellingProducts(): Promise<HomeProduct[]> {
   const query = gql`
     query {
