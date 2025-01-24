@@ -46,7 +46,7 @@ export default function Search() {
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -63,17 +63,15 @@ export default function Search() {
     };
 
     fetchData();
-    
-    
+
+
     if (searchParams.get("query")) {
       handleSearch();
     }
   }, []);
-
   const handleSearch = async () => {
     setIsLoading(true);
     try {
-      
       if (searchQuery) {
         router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
       } else {
@@ -82,7 +80,7 @@ export default function Search() {
 
       const results = await searchProducts({
         query: searchQuery,
-        category: selectedCategory,
+        category: "", // Remove selectedCategory
         type: selectedProductType,
         minPrice: Number(minPrice) || undefined,
         maxPrice: Number(maxPrice) || undefined,
@@ -95,9 +93,7 @@ export default function Search() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  }; const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
@@ -106,7 +102,15 @@ export default function Search() {
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
-
+  const clearAllFilters = () => {
+    setSelectedProductType("");
+    setSelectedSize("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSearchQuery("");
+    setAppliedFilters([]);
+    handleSearch();
+  };
   const applyFilters = () => {
     const filters = [];
     //if (selectedCategory) filters.push(`Category: ${selectedCategory}`);
@@ -122,10 +126,7 @@ export default function Search() {
     const [type, value] = filter.split(": ");
     switch (type) {
       case "Category":
-        setSelectedCategory("");
-        break;
-      case "Product Type":
-        setSelectedProductType("");
+        setSelectedProductType(""); // Changed from selectedCategory
         break;
       case "Size":
         setSelectedSize("");
@@ -136,9 +137,8 @@ export default function Search() {
         break;
     }
     setAppliedFilters(appliedFilters.filter((f) => f !== filter));
-    handleSearch();
-  };
 
+  };
   const sortProducts = (products: HomeProduct[]) => {
     switch (sortBy) {
       case "name":
@@ -219,7 +219,7 @@ export default function Search() {
           <DrawerTitle className="text-center text-2xl">Filters</DrawerTitle>
         </DrawerHeader>
         <div className="mx-auto container">
-         
+
           <div className="mt-10">
             <h1 className="font-bold text-xl text-center">Categories</h1>
             {isLoading ? (
@@ -277,14 +277,23 @@ export default function Search() {
           </div>
         </div>
         <DrawerFooter className="w-full flex items-center">
-          <Button className="w-32" onClick={applyFilters}>
-            Apply
-          </Button>
-          <DrawerClose asChild>
-            <Button className="w-32" variant="outline">
-              Cancel
+          <div className="flex space-x-2">
+            <Button className="w-32" onClick={applyFilters}>
+              Apply
             </Button>
-          </DrawerClose>
+            <Button
+              className="w-32"
+              variant="destructive"
+              onClick={clearAllFilters}
+            >
+              Clear All
+            </Button>
+            <DrawerClose asChild>
+              <Button className="w-32" variant="outline">
+                Cancel
+              </Button>
+            </DrawerClose>
+          </div>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
