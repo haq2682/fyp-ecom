@@ -8,12 +8,23 @@ import { FaRegTrashCan } from "react-icons/fa6"
 import Link from "next/link"
 import { useCart } from '@/contexts/cart'
 import { updateCart, removeFromCart } from '@/actions/cart'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner';
+import { Cart } from '@/types'
 
-export default function Cart() {
+//Local Types
+type CartItemLine = Cart["lines"]["edges"][0]["node"]
+type CartLinesEdge = Cart["lines"]["edges"][0]
+
+
+export default function CartPage() {
     const { cart, cartId, refetchCart } = useCart();
+    const [currency, setCurrency] = useState<string>('');
     const [updatingLines, setUpdatingLines] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        if(cart) setCurrency(cart.lines.edges[0].node.merchandise.price.currencyCode);
+    }, [cart]);
 
     const handleUpdateQuantity = async (lineId: string, currentQuantity: number, increment: number) => {
         const newQuantity = currentQuantity + increment;
@@ -55,7 +66,7 @@ export default function Cart() {
         }
     };
 
-    const CartItem = ({ line }: { line: any }) => {
+    const CartItem = ({ line }: { line: CartItemLine }) => {
         const isUpdating = updatingLines.has(line.id);
 
         return (
@@ -113,19 +124,16 @@ export default function Cart() {
             <div className="container mx-auto px-4 py-8 text-center">
                 <h1 className="text-2xl font-bold mb-4">Your Cart is Empty</h1>
                 <Button asChild className="mt-4">
-                    <Link href="/products">Continue Shopping</Link>
+                    <Link href="/">Continue Shopping</Link>
                 </Button>
             </div>
         );
     }
 
-    const cartLines = cart.lines.edges.map((edge: any) => edge.node);
-    const subtotal = cartLines.reduce((acc: number, line: any) => {
-        return acc + (parseFloat(line.merchandise.price.amount) * line.quantity);
-    }, 0);
-    const shipping = 5.00;
-    const gst = subtotal * 0.05;
-    const total = subtotal + shipping + gst;
+    const cartLines = cart.lines.edges.map((edge: CartLinesEdge): CartItemLine => edge.node);
+    const subtotal = cartLines.reduce((acc: number, line: any) => acc + (parseFloat(line.merchandise.price.amount) * line.quantity), 0);
+    const shipping = 250.00;
+    const total = subtotal + shipping;
 
     return (
         <div className="mx-auto container mb-12">
@@ -143,20 +151,16 @@ export default function Cart() {
                     </div>
                     <div className="flex justify-between">
                         <p>Subtotal</p>
-                        <p className="font-bold">${subtotal.toFixed(2)}</p>
+                        <p className="font-bold">{currency} {subtotal.toFixed(2)}</p>
                     </div>
                     <div className="flex justify-between">
                         <p>Shipping</p>
-                        <p className="font-bold">${shipping.toFixed(2)}</p>
-                    </div>
-                    <div className="flex justify-between">
-                        <p>GST</p>
-                        <p className="font-bold">${gst.toFixed(2)}</p>
+                        <p className="font-bold">{currency} {shipping.toFixed(2)}</p>
                     </div>
                     <Separator />
                     <div className="flex justify-between">
                         <p>Grand Total</p>
-                        <p className="font-bold">${total.toFixed(2)}</p>
+                        <p className="font-bold">{currency} {total.toFixed(2)}</p>
                     </div>
                     <div className="flex justify-center">
                         <Button
@@ -171,7 +175,7 @@ export default function Cart() {
                     </div>
                     <div className="flex justify-center">
                         <Button variant="link" asChild className="underline mt-4">
-                            <Link href="/products">
+                            <Link href="/">
                                 Continue Shopping
                             </Link>
                         </Button>

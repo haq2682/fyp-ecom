@@ -56,3 +56,38 @@ export interface HomeProduct {
     imageAlt: string,
     title: string,
 }
+
+export interface Cart {
+    checkoutUrl: string,
+    id: string,
+    lines: {
+        edges: [
+            {
+                node: {
+                    id: string,
+                    merchandise: {
+                        id: string
+                        price: {
+                            amount: string,
+                            currencyCode: string
+                        },
+                        product: {
+                            images: {
+                                edges: [
+                                    {
+                                        node: {
+                                            url: string,
+                                        }
+                                    }
+                                ]
+                            },
+                            title: string,
+                        },
+                        title: string,
+                    },
+                    quantity: number;
+                }
+            }
+        ]
+    }
+}
