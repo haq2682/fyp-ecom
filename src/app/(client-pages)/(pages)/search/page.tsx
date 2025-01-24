@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ProductItem from "@/components/product/product-item";
 import {
@@ -31,7 +31,8 @@ import { HomeProduct } from "@/types";
 
 export default function Search() {
   const searchParams = useSearchParams();
-  const [categories, setCategories] = useState<string[]>([]);
+  const router = useRouter();
+  //const [categories, setCategories] = useState<string[]>([]);
   const [productTypes, setProductTypes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [products, setProducts] = useState<HomeProduct[]>([]);
@@ -45,13 +46,14 @@ export default function Search() {
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const fetchedCategories = await getCategories();
+        //const fetchedCategories = await getCategories();
         const fetchedProductTypes = await getProductTypes();
-        setCategories(Array.from(fetchedCategories as Set<string>));
+        //setCategories(Array.from(fetchedCategories as Set<string>));
         setProductTypes(Array.from(fetchedProductTypes as Set<string>));
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -61,17 +63,23 @@ export default function Search() {
     };
 
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (searchQuery || selectedCategory || selectedProductType || selectedSize || minPrice || maxPrice) {
+    
+    
+    if (searchParams.get("query")) {
       handleSearch();
     }
-  }, [searchQuery, selectedCategory, selectedProductType, selectedSize, minPrice, maxPrice]);
+  }, []);
 
   const handleSearch = async () => {
     setIsLoading(true);
     try {
+      
+      if (searchQuery) {
+        router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
+      } else {
+        router.push('/search');
+      }
+
       const results = await searchProducts({
         query: searchQuery,
         category: selectedCategory,
@@ -89,15 +97,25 @@ export default function Search() {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   const applyFilters = () => {
     const filters = [];
-    if (selectedCategory) filters.push(`Category: ${selectedCategory}`);
-    if (selectedProductType) filters.push(`Product Type: ${selectedProductType}`);
+    //if (selectedCategory) filters.push(`Category: ${selectedCategory}`);
+    if (selectedProductType) filters.push(`Category: ${selectedProductType}`);
     if (selectedSize) filters.push(`Size: ${selectedSize}`);
     if (minPrice || maxPrice) filters.push(`Price: $${minPrice || "0"} - $${maxPrice || "∞"}`);
     setAppliedFilters(filters);
     handleSearch();
-    setIsDrawerOpen(false); // Close the drawer
+    setIsDrawerOpen(false);
   };
 
   const removeFilter = (filter: string) => {
@@ -145,7 +163,8 @@ export default function Search() {
                 <Input
                   placeholder="Search products..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
+                  onKeyPress={handleKeyPress}
                   className="w-64"
                 />
                 <Button onClick={handleSearch}>Search</Button>
@@ -200,32 +219,9 @@ export default function Search() {
           <DrawerTitle className="text-center text-2xl">Filters</DrawerTitle>
         </DrawerHeader>
         <div className="mx-auto container">
-          <div>
-            <h1 className="font-bold text-xl text-center">Categories</h1>
-            {isLoading ? (
-              <p className="text-center">Loading categories...</p>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
-                {categories.map((category, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`category-${index}`}
-                      checked={selectedCategory === category}
-                      onCheckedChange={() => setSelectedCategory(category)}
-                    />
-                    <label
-                      htmlFor={`category-${index}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {category}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+         
           <div className="mt-10">
-            <h1 className="font-bold text-xl text-center">Product Types</h1>
+            <h1 className="font-bold text-xl text-center">Categories</h1>
             {isLoading ? (
               <p className="text-center">Loading product types...</p>
             ) : (
