@@ -30,7 +30,6 @@ export async function getCategories() {
     throw new Error('Failed to fetch categories');
   }
 }
-
 export async function getProductTypes() {
   const productTypesQuery = gql`
     query {
@@ -42,7 +41,7 @@ export async function getProductTypes() {
 
   try {
     const response = await storefront(productTypesQuery);
-    
+
     const productTypes = new Set(
       response.data.productTypes.nodes.filter((type: string) => type !== "")
     );
@@ -119,7 +118,9 @@ export async function searchProducts(searchParams: {
          
         }
       }
-    }`
+    }
+  `
+
   try {
     const response = await storefront(quer, { filters: filters.join(" AND ") })
     const products: HomeProduct[] = processResponse(response)
@@ -129,6 +130,7 @@ export async function searchProducts(searchParams: {
     throw new Error("Failed to search products")
   }
 }
+
 
 export async function getHomeBestSellingProducts(): Promise<HomeProduct[]> {
   const query = gql`
