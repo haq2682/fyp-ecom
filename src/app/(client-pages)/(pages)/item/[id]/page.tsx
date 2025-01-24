@@ -9,6 +9,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { getIndividualProduct } from "@/actions/products"
 import Link from "next/link"
+import { useCart } from '@/contexts/cart';
+import { addToCart } from '@/actions/cart';
+import { toast } from 'sonner';
 
 export default function Component({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
@@ -18,6 +21,8 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [error, setError] = useState<string>('');
     const [product, setProduct] = useState<any>(null);
+    const { cartId, refetchCart } = useCart();
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -41,6 +46,21 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
         }
         fetchProduct();
     }, [resolvedParams.id]);
+
+    const handleAddToCart = async () => {
+        if (!cartId || !selectedVariant) return;
+
+        setIsAddingToCart(true);
+        try {
+            await addToCart(cartId, selectedVariant.id, quantity);
+            await refetchCart();
+            toast.success('Added to cart successfully');
+        } catch (error) {
+            toast.error('Failed to add to cart');
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
 
     const handleVariantChange = (size: string) => {
         const variant = product.variants.find((v: any) => v.size === size);
@@ -192,9 +212,10 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                     <div className="flex space-x-4">
                         <Button
                             className="flex-1 text-lg py-6 hover:opacity-70"
-                            disabled={!selectedVariant.inStock}
+                            disabled={!selectedVariant.inStock || isAddingToCart}
+                            onClick={handleAddToCart}
                         >
-                            Add to cart
+                            {isAddingToCart ? 'Adding...' : 'Add to cart'}
                         </Button>
                     </div>
                 </div>
