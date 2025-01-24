@@ -15,7 +15,6 @@ const SearchBar = () => {
   const searchContainerRef = useRef(null);
 
   useEffect(() => {
-    // Close suggestions when clicking outside
     const handleClickOutside = (event) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
         setShowSuggestions(false);
@@ -51,10 +50,9 @@ const SearchBar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search?query=${encodeURIComponent(query.trim())}`);
-      setShowSuggestions(false);
-    }
+    
+    router.push(`/search${query.trim() ? `?query=${encodeURIComponent(query.trim())}` : ''}`);
+    setShowSuggestions(false);
   };
 
   const handleSuggestionClick = (suggestion) => {
