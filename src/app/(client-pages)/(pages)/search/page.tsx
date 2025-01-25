@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -19,68 +20,77 @@ import { Input } from "@/components/ui/input";
 import { getProductTypes, searchProducts } from "@/actions/products";
 import { HomeProduct } from "@/types";
 
+const ITEMS_PER_PAGE = 12;
+
 export default function Search() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [productTypes, setProductTypes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [products, setProducts] = useState<HomeProduct[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<HomeProduct[]>([]);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("query") || "");
-  const [selectedProductType, setSelectedProductType] = useState("");
-  const [selectedSize, setSelectedSize] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [endCursor, setEndCursor] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const query = searchParams.get("query") || "";
+  const type = searchParams.get("type") || "";
+  const size = searchParams.get("size") || "";
+  const minPrice = searchParams.get("minPrice") || "";
+  const maxPrice = searchParams.get("maxPrice") || "";
+  const sortBy = searchParams.get("sort") || "";
 
   useEffect(() => {
     fetchProductTypes();
-    if (searchParams.get("query")) {
-      handleSearch();
-    }
-  }, []);
-
-  useEffect(() => {
-    const sortedAndFiltered = sortProducts(filterProducts(products));
-    setFilteredProducts(sortedAndFiltered);
-  }, [sortBy, products, selectedProductType, selectedSize, minPrice, maxPrice]);
+    handleSearch();
+  }, [query, type, size, minPrice, maxPrice, sortBy]);
 
   const fetchProductTypes = async () => {
     try {
-      setIsLoading(true);
       const fetchedProductTypes = await getProductTypes();
       setProductTypes(Array.from(fetchedProductTypes as Set<string>));
     } catch (error) {
       console.error("Error fetching product types:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleSearch = async () => {
-    setIsLoading(true);
-    try {
-      if (searchQuery) {
-        router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
-      } else {
-        router.push('/search');
-      }
+  const updateSearchParams = (updates: Record<string, string | null>) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
 
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "") {
+        current.delete(key);
+      } else {
+        current.set(key, value);
+      }
+    });
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+
+    router.push(`/search${query}`);
+  };
+
+  const handleSearch = async (resetCursor = true) => {
+    setIsLoading(resetCursor);
+    try {
       const results = await searchProducts({
-        query: searchQuery,
-        type: selectedProductType,
-        minPrice: Number(minPrice) || undefined,
-        maxPrice: Number(maxPrice) || undefined,
-        size: selectedSize,
-        sortBy,
+        query: query || undefined,
+        type: type || undefined,
+        minPrice: minPrice ? Number(minPrice) : undefined,
+        maxPrice: maxPrice ? Number(maxPrice) : undefined,
+        size: size || undefined,
+        sortBy: sortBy || undefined,
+        after: resetCursor ? null : endCursor,
+        limit: ITEMS_PER_PAGE,
       });
 
-      setProducts(results.products);
+      if (resetCursor) {
+        setProducts(results.products);
+      } else {
+        setProducts(prev => [...prev, ...results.products]);
+      }
+
       setHasNextPage(results.hasNextPage);
       setEndCursor(results.endCursor);
     } catch (error) {
@@ -91,93 +101,33 @@ export default function Search() {
     }
   };
 
-  const loadMore = async () => {
+  const handleInputChange = (value: string) => {
+    updateSearchParams({ query: value || null });
+  };
+
+  const loadMore = () => {
     if (!hasNextPage || isLoadingMore) return;
-
     setIsLoadingMore(true);
-    try {
-      const results = await searchProducts({
-        query: searchQuery,
-        type: selectedProductType,
-        minPrice: Number(minPrice) || undefined,
-        maxPrice: Number(maxPrice) || undefined,
-        size: selectedSize,
-        sortBy,
-        after: endCursor,
-      });
-
-      setProducts([...products, ...results.products]);
-      setHasNextPage(results.hasNextPage);
-      setEndCursor(results.endCursor);
-    } catch (error) {
-      console.error("Error loading more products:", error);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  };
-
-  const filterProducts = (products: HomeProduct[]) => {
-    return products.filter(product => {
-      const priceMatch = (!minPrice || product.price >= Number(minPrice)) &&
-        (!maxPrice || product.price <= Number(maxPrice));
-      const typeMatch = !selectedProductType || product.type === selectedProductType;
-      const sizeMatch = !selectedSize || product.sizes?.includes(selectedSize);
-
-      return priceMatch && typeMatch && sizeMatch;
-    });
-  };
-
-  const sortProducts = (products: HomeProduct[]) => {
-    const sortedProducts = [...products];
-    switch (sortBy) {
-      case "name":
-        return sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
-      case "priceLowHigh":
-        return sortedProducts.sort((a, b) => a.price - b.price);
-      case "priceHighLow":
-        return sortedProducts.sort((a, b) => b.price - a.price);
-      default:
-        return sortedProducts;
-    }
+    handleSearch(false).finally(() => setIsLoadingMore(false));
   };
 
   const clearAllFilters = () => {
-    setSelectedProductType("");
-    setSelectedSize("");
-    setMinPrice("");
-    setMaxPrice("");
-    setSearchQuery("");
-    setSortBy("");
-    setAppliedFilters([]);
-    handleSearch();
+    router.push('/search');
   };
 
   const applyFilters = () => {
-    const filters = [];
-    if (selectedProductType) filters.push(`Category: ${selectedProductType}`);
-    if (selectedSize) filters.push(`Size: ${selectedSize}`);
-    if (minPrice || maxPrice) filters.push(`Price: $${minPrice || "0"} - $${maxPrice || "∞"}`);
-    setAppliedFilters(filters);
-    handleSearch();
+    updateSearchParams({
+      type: type || null,
+      size: size || null,
+      minPrice: minPrice || null,
+      maxPrice: maxPrice || null,
+      sort: sortBy || null
+    });
     setIsDrawerOpen(false);
   };
 
-  const removeFilter = (filter: string) => {
-    const [type, value] = filter.split(": ");
-    switch (type) {
-      case "Category":
-        setSelectedProductType("");
-        break;
-      case "Size":
-        setSelectedSize("");
-        break;
-      case "Price":
-        setMinPrice("");
-        setMaxPrice("");
-        break;
-    }
-    setAppliedFilters(appliedFilters.filter((f) => f !== filter));
-    handleSearch();
+  const removeFilter = (filterKey: string) => {
+    updateSearchParams({ [filterKey]: null });
   };
 
   return (
@@ -191,12 +141,10 @@ export default function Search() {
               <div className="flex space-x-2">
                 <Input
                   placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  value={query}
+                  onChange={(e) => handleInputChange(e.target.value)}
                   className="w-64"
                 />
-                <Button onClick={handleSearch}>Search</Button>
               </div>
             </div>
             <DrawerTrigger asChild>
@@ -206,18 +154,36 @@ export default function Search() {
 
           {/* Applied Filters */}
           <div className="flex flex-wrap gap-2">
-            {appliedFilters.map((filter, index) => (
-              <Badge key={index} variant="secondary" className="px-2 py-1">
-                {filter}
-                <button onClick={() => removeFilter(filter)} className="ml-2 text-xs">×</button>
+            {type && (
+              <Badge variant="secondary" className="px-2 py-1">
+                Category: {type}
+                <button onClick={() => removeFilter("type")} className="ml-2 text-xs">×</button>
               </Badge>
-            ))}
+            )}
+            {size && (
+              <Badge variant="secondary" className="px-2 py-1">
+                Size: {size}
+                <button onClick={() => removeFilter("size")} className="ml-2 text-xs">×</button>
+              </Badge>
+            )}
+            {(minPrice || maxPrice) && (
+              <Badge variant="secondary" className="px-2 py-1">
+                Price: ${minPrice || "0"} - ${maxPrice || "∞"}
+                <button onClick={() => {
+                  removeFilter("minPrice");
+                  removeFilter("maxPrice");
+                }} className="ml-2 text-xs">×</button>
+              </Badge>
+            )}
           </div>
 
           {/* Sort and Results Count */}
           <div className="flex justify-between items-center">
-            <p>Showing {filteredProducts.length} Results</p>
-            <Select onValueChange={setSortBy} value={sortBy}>
+            <p>Showing {products.length} Results</p>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => updateSearchParams({ sort: value })}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort By..." />
               </SelectTrigger>
@@ -234,22 +200,21 @@ export default function Search() {
           {/* Products Grid */}
           <div className="flex justify-center flex-wrap">
             {isLoading ? (
-              <p className="text-center w-full">Loading products...</p>
+              <p>Loading products...</p>
             ) : products.length > 0 ? (
               <>
                 {products.map((product) => (
                   <ProductItem key={product.id} {...product} />
                 ))}
-                
               </>
             ) : (
-              <p className="text-center">
-                  No products found. Try adjusting your search or filters.
-              </p>
+              <p>No products found. Try adjusting your search or filters.</p>
             )}
           </div>
+
+          {/* Load More Button */}
           {hasNextPage && (
-            <div className="col-span-full flex justify-center mt-6">
+            <div className="flex justify-center mt-6">
               <Button
                 onClick={loadMore}
                 disabled={isLoadingMore}
@@ -272,15 +237,15 @@ export default function Search() {
           <div>
             <h2 className="font-bold text-xl text-center mb-4">Categories</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {productTypes.map((type, index) => (
+              {productTypes.map((productType, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <Checkbox
                     id={`type-${index}`}
-                    checked={selectedProductType === type}
-                    onCheckedChange={() => setSelectedProductType(type)}
+                    checked={type === productType}
+                    onCheckedChange={() => updateSearchParams({ type: type === productType ? null : productType })}
                   />
                   <label htmlFor={`type-${index}`} className="text-sm">
-                    {type}
+                    {productType}
                   </label>
                 </div>
               ))}
@@ -291,14 +256,14 @@ export default function Search() {
           <div>
             <h2 className="font-bold text-xl text-center mb-4">Sizes</h2>
             <div className="grid grid-cols-3 gap-4">
-              {["S", "M", "L", "XL", "XXL"].map((size) => (
-                <div key={size} className="flex items-center space-x-2">
+              {["S", "M", "L", "XL", "XXL"].map((sizeOption) => (
+                <div key={sizeOption} className="flex items-center space-x-2">
                   <Checkbox
-                    id={`size-${size}`}
-                    checked={selectedSize === size}
-                    onCheckedChange={() => setSelectedSize(size)}
+                    id={`size-${sizeOption}`}
+                    checked={size === sizeOption}
+                    onCheckedChange={() => updateSearchParams({ size: size === sizeOption ? null : sizeOption })}
                   />
-                  <label htmlFor={`size-${size}`}>{size}</label>
+                  <label htmlFor={`size-${sizeOption}`}>{sizeOption}</label>
                 </div>
               ))}
             </div>
@@ -314,7 +279,7 @@ export default function Search() {
                   type="number"
                   placeholder="Min"
                   value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
+                  onChange={(e) => updateSearchParams({ minPrice: e.target.value || null })}
                   className="w-24"
                 />
               </div>
@@ -325,7 +290,7 @@ export default function Search() {
                   type="number"
                   placeholder="Max"
                   value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
+                  onChange={(e) => updateSearchParams({ maxPrice: e.target.value || null })}
                   className="w-24"
                 />
               </div>
@@ -333,7 +298,6 @@ export default function Search() {
           </div>
         </div>
 
-        {/* Drawer Footer */}
         <DrawerFooter>
           <div className="flex space-x-2 justify-center">
             <Button onClick={applyFilters}>Apply</Button>
