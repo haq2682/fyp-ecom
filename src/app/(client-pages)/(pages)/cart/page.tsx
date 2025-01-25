@@ -23,7 +23,7 @@ export default function CartPage() {
     const [updatingLines, setUpdatingLines] = useState<Set<string>>(new Set());
 
     useEffect(() => {
-        if(cart) setCurrency(cart.lines.edges[0].node.merchandise.price.currencyCode);
+        if(cart) setCurrency(cart.lines.edges[0]?.node.merchandise.price.currencyCode);
     }, [cart]);
 
     const handleUpdateQuantity = async (lineId: string, currentQuantity: number, increment: number) => {

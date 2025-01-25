@@ -1,8 +1,9 @@
+// @/actions/products.ts
 "use server";
 
 import { gql } from 'graphql-request';
 import storefront from '@/utils/shopify';
-import { HomeProduct } from '@/types';
+import { HomeProduct, ShopifyProduct } from '@/types';
 
 export async function getCategories() {
   const categoriesQuery = gql`
@@ -31,7 +32,7 @@ export async function getCategories() {
   }
 }
 export async function getProductTypes() {
-  const productTypesQuery = gql`
+  const query = gql`
     query {
       productTypes(first: 250) {
         nodes
@@ -40,98 +41,149 @@ export async function getProductTypes() {
   `;
 
   try {
-    const response = await storefront(productTypesQuery);
-
-    const productTypes = new Set(
+    const response = await storefront(query);
+    return new Set(
       response.data.productTypes.nodes.filter((type: string) => type !== "")
     );
-    
-    return productTypes;
   } catch (error) {
-    console.error('Error fetching product types', error);
+    console.error('Error fetching product types:', error);
     throw new Error('Failed to fetch product types');
   }
 }
 
 export async function searchProducts(searchParams: {
-  query?: string
-  category?: string
-  minPrice?: number
-  maxPrice?: number
-  size?: string
-  type?: string
-}): Promise<HomeProduct[]> {
-  const { query, category, minPrice, maxPrice, size, type } = searchParams
-  const filters: string[] = []
+  query?: string;
+  type?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  size?: string;
+  limit?: number;
+  sortBy?: string;
+  after?: string | null
+}): Promise<{ products: HomeProduct[]; hasNextPage: boolean; endCursor: string | null }> {
+  const { query, type, minPrice, maxPrice, size, limit = 12, sortBy } = searchParams;
+  const filters: string[] = [];
+  let sortKey = 'TITLE';
+  let reverse = false;
 
   if (query) {
-    filters.push(`title:${query}`) 
+    filters.push(`title:*${query}*`);
   }
 
-  if (category) {
-    filters.push(` (category:${category}) `)
-  }
   if (type) {
-    filters.push(` (product_type:${type}) `)
+    filters.push(`(product_type:${type})`);
   }
-  console.log(type)
-  console.log(category)
+
   if (minPrice || maxPrice) {
     const priceFilter = [
       minPrice ? `variants.price:>=${minPrice}` : null,
       maxPrice ? `variants.price:<=${maxPrice}` : null,
     ]
       .filter(Boolean)
-      .join(" AND ")
+      .join(" AND ");
     if (priceFilter) {
-      filters.push(`(${priceFilter})`)
+      filters.push(`(${priceFilter})`);
     }
   }
 
   if (size) {
-    filters.push(`variants.option1:${size}`)
+    filters.push(`variants.option1:${size}`);
   }
-  console.log(filters)
-  const quer = gql`
-    query ($filters: String!) {
-      products(first: 250, query: $filters) {
-        nodes {
-          id
-          title
-          availableForSale
-          compareAtPriceRange {
-            minVariantPrice {
-              amount
-              currencyCode
+
+  switch (sortBy) {
+    case 'name':
+      sortKey = 'TITLE';
+      break;
+    case 'priceLowHigh':
+      sortKey = 'PRICE';
+      break;
+    case 'priceHighLow':
+      sortKey = 'PRICE';
+      reverse = true;
+      break;
+    default:
+      sortKey = 'RELEVANCE';
+  }
+
+  const searchQuery = gql`
+    query ($filters: String!, $first: Int!, $after: String, $sortKey: ProductSortKeys!, $reverse: Boolean!) {
+      products(
+        first: $first,
+        after: $after,
+        query: $filters,
+        sortKey: $sortKey,
+        reverse: $reverse
+      ) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title
+            availableForSale
+            compareAtPriceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
             }
-          }
-          featuredImage {
-            altText
-            url(transform: {maxHeight: 230, maxWidth: 200, crop: CENTER})
-          }
-          priceRange {
-            minVariantPrice {
-              currencyCode
-              amount
+            featuredImage {
+              altText
+              url(transform: {maxHeight: 230, maxWidth: 200, crop: CENTER})
             }
+            priceRange {
+              minVariantPrice {
+                currencyCode
+                amount
+              }
+            }
+            variants(first: 1) {
+              nodes {
+                selectedOptions {
+                  name
+                  value
+                }
+              }
+            }
+            productType
           }
-         
         }
       }
     }
-  `
+  `;
 
   try {
-    const response = await storefront(quer, { filters: filters.join(" AND ") })
-    const products: HomeProduct[] = processResponse(response)
-    return products
+    const variables = {
+      filters: filters.join(" AND "),
+      first: limit,
+      after: null,
+      sortKey,
+      reverse
+    };
+
+    const response = await storefront(searchQuery, variables);
+    const {
+      products: {
+        edges,
+        pageInfo: { hasNextPage, endCursor }
+      }
+    } = response.data;
+
+    const processedProducts = processResponse(edges.map((edge: any) => edge.node));
+
+    return {
+      products: processedProducts,
+      hasNextPage,
+      endCursor
+    };
   } catch (error) {
-    console.error("Error searching products", error)
-    throw new Error("Failed to search products")
+    console.error("Error searching products:", error);
+    throw new Error("Failed to search products");
   }
 }
-
-
 export async function getHomeBestSellingProducts(): Promise<HomeProduct[]> {
   const query = gql`
     query {
@@ -287,24 +339,33 @@ export async function getIndividualProduct(id: string): Promise<any> {
 }
 
 //Local Helper Functions
-const processResponse = (response: {data: {products: {nodes: BestOrLatestProduct[]}}}): HomeProduct[] => {
-  const products: HomeProduct[] = response.data.products.nodes.map((product: BestOrLatestProduct) => {
+const processResponse = (nodes: ShopifyProduct[]): HomeProduct[] => {
+  return nodes.map(product => {
     const idParts = product.id.split("/");
     const productId = idParts[idParts.length - 1];
+
+    const sizeOption = product.variants.nodes[0]?.selectedOptions
+      .find(opt => opt.name === "Size");
+    const sizes = sizeOption ? [sizeOption.value] : [];
+
+    const discountPrice = product.compareAtPriceRange?.minVariantPrice?.amount
+      ? Number(product.compareAtPriceRange.minVariantPrice.amount)
+      : 0;
+
     return {
       id: productId,
       title: product.title,
       inStock: product.availableForSale,
       price: Number(product.priceRange.minVariantPrice.amount),
       currency: product.priceRange.minVariantPrice.currencyCode,
-      imageSrc: product.featuredImage.url,
-      imageAlt: product.featuredImage.altText,
-      discountedPrice: Number(product.compareAtPriceRange.minVariantPrice.amount),
-    }
+      imageSrc: product.featuredImage?.url ?? '',
+      imageAlt: product.featuredImage?.altText ?? product.title,
+      discountedPrice: discountPrice,
+      type: product.productType,
+      sizes
+    };
   });
-  return products;
-}
-
+};
 // Local Types
 type CategoryProductNode = {
   id: string;
@@ -313,26 +374,4 @@ type CategoryProductNode = {
     id: string,
     name: string
   };
-}
-
-type BestOrLatestProduct = {
-  id: string,
-  availableForSale: boolean;
-  compareAtPriceRange: {
-    minVariantPrice: {
-      amount: string,
-      currencyCode: string
-    }
-  }
-  featuredImage: {
-    altText: string,
-    url: string
-  }
-  priceRange: {
-    minVariantPrice: {
-      currencyCode: string,
-      amount: string,
-    }
-  }
-  title: string
 }

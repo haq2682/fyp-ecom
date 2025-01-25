@@ -2,7 +2,6 @@ import axios from 'axios';
 
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['X-Shopify-Storefront-Access-Token'] = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-// const DEFAULT_URL: string = 'https://university-fyp.myshopify.com/api/2025-01/graphql.json'
 
 export default async function storefront(query: string, variables = {}) {
   try {
