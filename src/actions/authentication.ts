@@ -225,3 +225,168 @@ export async function login(previousState: LoginFormState, formData: FormData): 
         };
     }
 }
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: "E-Mail is Invalid" }),
+})
+
+interface ForgotPasswordFormState {
+  status: string
+  message: string
+  errors?: {
+    email?: string[]
+  }
+}
+
+const CUSTOMER_RECOVER_MUTATION = `
+  mutation customerRecover($email: String!) {
+    customerRecover(email: $email) {
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`
+
+export async function forgotPassword(
+  previousState: ForgotPasswordFormState,
+  formData: FormData,
+): Promise<ForgotPasswordFormState> {
+  try {
+    const email = formData.get("email") as string
+
+    const result = forgotPasswordSchema.safeParse({ email })
+
+    if (!result.success) {
+      return {
+        status: "error",
+        message: "Invalid Email",
+        errors: result.error.flatten().fieldErrors,
+      }
+    }
+
+    const response = await storefront(CUSTOMER_RECOVER_MUTATION, {
+      email,
+    })
+
+    const { customerRecover } = response.data
+
+    if (customerRecover.customerUserErrors.length > 0) {
+      const error = customerRecover.customerUserErrors[0]
+      return {
+        status: "error",
+        message: error.message,
+        errors: {
+          [error.field]: [error.message],
+        },
+      }
+    }
+
+    return {
+      status: "success",
+      message: "If an account with that email exists, you will receive a password reset email shortly.",
+    }
+  } catch (error) {
+    console.error("Forgot password error:", error)
+    return {
+      status: "error",
+      message: "An unexpected error occurred",
+    }
+  }
+}
+
+
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8, { message: "Password must contain at least 8 characters" }),
+    confirm_password: z.string().min(8, { message: "Confirm Password must contain at least 8 characters" }),
+    resetToken: z.string(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords do not match",
+    path: ["confirm_password"],
+  })
+
+interface ResetPasswordFormState {
+  status: string
+  message: string
+  errors?: {
+    password?: string[]
+    confirm_password?: string[]
+  }
+}
+
+const CUSTOMER_RESET_MUTATION = `
+  mutation customerReset($id: ID!, $input: CustomerResetInput!) {
+    customerReset(id: $id, input: $input) {
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`
+
+export async function resetPassword(
+  previousState: ResetPasswordFormState,
+  formData: FormData,
+): Promise<ResetPasswordFormState> {
+  try {
+    const password = formData.get("password") as string
+    const confirm_password = formData.get("confirm_password") as string
+    const resetToken = formData.get("resetToken") as string
+
+    const result = resetPasswordSchema.safeParse({
+      password,
+      confirm_password,
+      resetToken,
+    })
+
+    if (!result.success) {
+      return {
+        status: "error",
+        message: "Invalid input",
+        errors: result.error.flatten().fieldErrors,
+      }
+    }
+
+    const response = await storefront(CUSTOMER_RESET_MUTATION, {
+      id: resetToken,
+      input: {
+        password,
+        resetToken,
+      },
+    })
+
+    const { customerReset } = response.data
+
+    if (customerReset.customerUserErrors.length > 0) {
+      const error = customerReset.customerUserErrors[0]
+      return {
+        status: "error",
+        message: error.message,
+        errors: {
+          [error.field]: [error.message],
+        },
+      }
+    }
+
+    return {
+      status: "success",
+      message: "Password reset successful. You can now login with your new password.",
+    }
+  } catch (error) {
+    console.error("Reset password error:", error)
+    return {
+      status: "error",
+      message: "An unexpected error occurred",
+    }
+  }
+}
