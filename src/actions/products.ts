@@ -215,7 +215,7 @@ export async function getHomeBestSellingProducts(): Promise<HomeProduct[]> {
 
   try {
     const response = await storefront(query);
-    const products: HomeProduct[] = processResponse(response);
+    const products: HomeProduct[] = homeProcessResponse(response);
     return products;
   }
   catch(error) {
@@ -254,7 +254,7 @@ export async function getHomeLatestProducts(): Promise<HomeProduct[]> {
   `;
   try {
     const response = await storefront(query);
-    const products: HomeProduct[] = processResponse(response);
+    const products: HomeProduct[] = homeProcessResponse(response);
     return products;
   }
   catch (error) {
@@ -366,6 +366,24 @@ const processResponse = (nodes: ShopifyProduct[]): HomeProduct[] => {
     };
   });
 };
+
+const homeProcessResponse = (response: {data: {products: {nodes: BestOrLatestProduct[]}}}): HomeProduct[] => {
+  const products: HomeProduct[] = response.data.products.nodes.map((product: BestOrLatestProduct) => {
+    const idParts = product.id.split("/");
+    const productId = idParts[idParts.length - 1];
+    return {
+      id: productId,
+      title: product.title,
+      inStock: product.availableForSale,
+      price: Number(product.priceRange.minVariantPrice.amount),
+      currency: product.priceRange.minVariantPrice.currencyCode,
+      imageSrc: product.featuredImage.url,
+      imageAlt: product.featuredImage.altText,
+      discountedPrice: Number(product.compareAtPriceRange.minVariantPrice.amount),
+    }
+  });
+  return products;
+}
 // Local Types
 type CategoryProductNode = {
   id: string;
@@ -374,4 +392,25 @@ type CategoryProductNode = {
     id: string,
     name: string
   };
+}
+type BestOrLatestProduct = {
+  id: string,
+  availableForSale: boolean;
+  compareAtPriceRange: {
+    minVariantPrice: {
+      amount: string,
+      currencyCode: string
+    }
+  }
+  featuredImage: {
+    altText: string,
+    url: string
+  }
+  priceRange: {
+    minVariantPrice: {
+      currencyCode: string,
+      amount: string,
+    }
+  }
+  title: string
 }
