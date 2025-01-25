@@ -45,6 +45,18 @@ function generateRandomString(length: number): string {
 }
 
 export const authOptions: NextAuthOptions = {
+    useSecureCookies: true,
+    cookies: {
+        sessionToken: {
+            name: `__Secure-next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: true
+            }
+        }
+    },
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_ID as string,

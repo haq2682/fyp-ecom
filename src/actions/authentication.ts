@@ -315,12 +315,17 @@ interface ResetPasswordFormState {
   errors?: {
     password?: string[]
     confirm_password?: string[]
+    _form?: string[]
   }
 }
 
 const CUSTOMER_RESET_MUTATION = `
   mutation customerReset($id: ID!, $input: CustomerResetInput!) {
     customerReset(id: $id, input: $input) {
+      customer {
+        id
+        email
+      }
       customerAccessToken {
         accessToken
         expiresAt
@@ -357,24 +362,47 @@ export async function resetPassword(
       }
     }
 
+    // The resetToken from Shopify contains both the customer ID and token
+    // Format: customerId/resetToken
+    const [customerId, token] = resetToken.split('/')
+
+    if (!customerId || !token) {
+      return {
+        status: "error",
+        message: "Invalid reset token format",
+        errors: {
+          _form: ["Invalid or expired reset link"]
+        }
+      }
+    }
+
     const response = await storefront(CUSTOMER_RESET_MUTATION, {
-      id: resetToken,
+      id: `gid://shopify/Customer/${customerId}`,
       input: {
         password,
-        resetToken,
+        resetToken: token  // Use only the token part
       },
     })
 
     const { customerReset } = response.data
 
-    if (customerReset.customerUserErrors.length > 0) {
+    if (customerReset.customerUserErrors?.length > 0) {
       const error = customerReset.customerUserErrors[0]
+      if (error.code === "TOKEN_INVALID" || error.code === "EXPIRED") {
+        return {
+          status: "error",
+          message: "Reset password link is invalid or has expired",
+          errors: {
+            _form: ["Reset password link is invalid or has expired"]
+          }
+        }
+      }
       return {
         status: "error",
         message: error.message,
         errors: {
           [error.field]: [error.message],
-        },
+        }
       }
     }
 
@@ -387,6 +415,9 @@ export async function resetPassword(
     return {
       status: "error",
       message: "An unexpected error occurred",
+      errors: {
+        _form: ["An unexpected error occurred while resetting your password"]
+      }
     }
   }
 }
