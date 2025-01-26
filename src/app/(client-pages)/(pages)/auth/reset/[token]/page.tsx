@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { resetPassword } from "@/actions/authentication"
-import Loading from "@/components/ui/loading"
-import { useTheme } from "next-themes"
+// import Loading from "@/components/ui/loading"
+// import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useActionState } from "react"
@@ -18,7 +18,7 @@ interface FormState {
 export default function ResetPassword() {
   const params = useParams()
   const router = useRouter()
-  const { theme } = useTheme()
+  // const { theme } = useTheme()
 
   const initialState = {
     status: "",
@@ -148,10 +148,11 @@ export default function ResetPassword() {
               >
                 Reset Password{" "}
                 {isPending && (
-                  <Loading
-                    propColor={theme === "light" ? "white" : "black"}
-                    propSize={20}
-                  />
+                  // <Loading
+                  //   propColor={theme === "light" ? "white" : "black"}
+                  //   propSize={20}
+                  // />
+                  <span>Loading...</span>
                 )}
               </Button>
             </div>
