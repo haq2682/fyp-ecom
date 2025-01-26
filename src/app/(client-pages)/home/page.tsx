@@ -121,9 +121,7 @@ export default function Home() {
                             ) : (
                                 bestSellingProducts && bestSellingProducts.map((product: HomeProduct, index: number) => {
                                     return (
-                                        <>
-                                            <ProductItem key={index} {...product}/>
-                                        </>
+                                        <ProductItem key={index} {...product}/>
                                     )
                                 })
                             ))
@@ -157,9 +155,7 @@ export default function Home() {
                                 ) : (
                                     latestProducts && latestProducts.map((product: HomeProduct, index: number) => {
                                         return (
-                                            <>
-                                                <ProductItem key={index} {...product} />
-                                            </>
+                                            <ProductItem key={index} {...product} />
                                         )
                                     })
                                 ))

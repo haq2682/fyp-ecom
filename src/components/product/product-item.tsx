@@ -1,6 +1,7 @@
 import { HomeProduct } from "@/types"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import DummyImage from '@/components/dummy-image-portrait.jpg'
 export default function ProductItem({id, inStock, price, discountedPrice, currency, imageAlt, imageSrc, title}: HomeProduct) {
     const router = useRouter();
     const handleClick = () => {
@@ -16,7 +17,7 @@ export default function ProductItem({id, inStock, price, discountedPrice, curren
                         </>
                     ) : (<></>)
                 }
-                <Image src={imageSrc} width={300} height={600} alt={imageAlt || 'Untitled'} />
+                <Image src={imageSrc || DummyImage} width={300} height={600} alt={imageAlt || 'Untitled'} />
                 <div className="my-4">
                     <h4 className="text-lg font-bold">{title}</h4>
                 </div>

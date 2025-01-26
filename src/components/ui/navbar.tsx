@@ -93,8 +93,8 @@ export default function Navbar() {
                   Contact
                 </NavigationMenuLink>
                 {status === "authenticated" && (
-                  <NavigationMenuLink href="/dashboard" className="hover:bg-secondary p-3 rounded-lg">
-                    Dash
+                  <NavigationMenuLink href="/admin" className="hover:bg-secondary p-3 rounded-lg">
+                    Admin
                   </NavigationMenuLink>
                 )}
               </NavigationMenuList>

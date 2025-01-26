@@ -132,7 +132,7 @@ export async function searchProducts(searchParams: {
             }
             featuredImage {
               altText
-              url(transform: {maxHeight: 230, maxWidth: 200, crop: CENTER})
+              url(transform: {maxHeight: 450, maxWidth: 300, crop: CENTER})
             }
             priceRange {
               minVariantPrice {

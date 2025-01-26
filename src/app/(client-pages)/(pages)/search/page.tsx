@@ -203,8 +203,8 @@ export default function Search() {
               <p>Loading products...</p>
             ) : products.length > 0 ? (
               <>
-                {products.map((product) => (
-                  <ProductItem key={product.id} {...product} />
+                {products.map((product, index) => (
+                  <ProductItem key={index} {...product} />
                 ))}
               </>
             ) : (
