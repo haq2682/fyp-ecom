@@ -39,6 +39,7 @@ export default function CartPage() {
             }
             await refetchCart();
         } catch (error) {
+            console.error('Failed to update cart', error);
             toast.error('Failed to update cart');
         } finally {
             setUpdatingLines(prev => {
@@ -56,6 +57,7 @@ export default function CartPage() {
             await refetchCart();
             toast.success('Item removed from cart');
         } catch (error) {
+            console.error('Failed to remove item', error);
             toast.error('Failed to remove item');
         } finally {
             setUpdatingLines(prev => {
@@ -131,7 +133,7 @@ export default function CartPage() {
     }
 
     const cartLines = cart.lines.edges.map((edge: CartLinesEdge): CartItemLine => edge.node);
-    const subtotal = cartLines.reduce((acc: number, line: any) => acc + (parseFloat(line.merchandise.price.amount) * line.quantity), 0);
+    const subtotal = cartLines.reduce((acc: number, line: CartItemLine) => acc + (parseFloat(line.merchandise.price.amount) * line.quantity), 0);
     const shipping = 250.00;
     const total = subtotal + shipping;
 
@@ -141,7 +143,7 @@ export default function CartPage() {
                 <div className="w-full md:w-8/12">
                     <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
                     <Separator orientation="horizontal" className="my-6" />
-                    {cartLines.map((line: any) => (
+                    {cartLines.map((line: CartItemLine) => (
                         <CartItem key={line.id} line={line} />
                     ))}
                 </div>

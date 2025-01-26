@@ -6,10 +6,9 @@ import { FaArrowRight } from "react-icons/fa6";
 import { LuShieldCheck, LuTruck } from "react-icons/lu";
 import { RiMedalLine } from "react-icons/ri";
 import ProductItem from "@/components/product/product-item";
-import { getCategories, getHomeBestSellingProducts, getHomeLatestProducts } from "@/actions/products";
+import { getHomeBestSellingProducts, getHomeLatestProducts } from "@/actions/products";
 import { HomeProduct } from "@/types";
 export default function Home() {
-    const [categories, setCategories] = useState(null);
     const [bestSellingProducts, setBestSellingProducts] = useState<HomeProduct[] | null>(null);
     const [bestSellingLoading, setBestSellingLoading] = useState<boolean>(false);
     const [bestSellingError, setBestSellingError] = useState<string>('');
@@ -55,14 +54,6 @@ export default function Home() {
         }
 
         fetchLatestProducts();
-    }, []);
-
-    useEffect(() => {
-        async function fetchCategories() {
-            const response = await getCategories();
-            console.log(response);
-        }
-        // fetchCategories();
     }, []);
     return (
         <>

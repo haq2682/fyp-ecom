@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ProductItem from "@/components/product/product-item";
@@ -22,7 +22,31 @@ import { HomeProduct } from "@/types";
 
 const ITEMS_PER_PAGE = 12;
 
-export default function Search() {
+// Loading fallback component
+function SearchLoading() {
+  return (
+    <div className="container mx-auto py-8">
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
+          <div className="h-10 bg-gray-200 rounded w-64"></div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-48 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Search content component that uses useSearchParams
+function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [productTypes, setProductTypes] = useState<string[]>([]);
@@ -32,6 +56,7 @@ export default function Search() {
   const [endCursor, setEndCursor] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState(searchParams.get("query") || "");
 
   const query = searchParams.get("query") || "";
   const type = searchParams.get("type") || "";
@@ -43,7 +68,7 @@ export default function Search() {
   useEffect(() => {
     fetchProductTypes();
     handleSearch();
-  }, [query, type, size, minPrice, maxPrice, sortBy]);
+  }, []);
 
   const fetchProductTypes = async () => {
     try {
@@ -102,7 +127,33 @@ export default function Search() {
   };
 
   const handleInputChange = (value: string) => {
-    updateSearchParams({ query: value || null });
+    setSearchInput(value);
+  };
+
+  const handleSearchClick = async () => {
+    updateSearchParams({ query: searchInput || null });
+    setIsLoading(true);
+    try {
+      const results = await searchProducts({
+        query: searchInput || undefined,
+        type: type || undefined,
+        minPrice: minPrice ? Number(minPrice) : undefined,
+        maxPrice: maxPrice ? Number(maxPrice) : undefined,
+        size: size || undefined,
+        sortBy: sortBy || undefined,
+        after: null,
+        limit: ITEMS_PER_PAGE,
+      });
+
+      setProducts(results.products);
+      setHasNextPage(results.hasNextPage);
+      setEndCursor(results.endCursor);
+    } catch (error) {
+      console.error("Error searching products:", error);
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const loadMore = () => {
@@ -112,7 +163,9 @@ export default function Search() {
   };
 
   const clearAllFilters = () => {
+    setSearchInput("");
     router.push('/search');
+    handleSearch();
   };
 
   const applyFilters = () => {
@@ -124,10 +177,12 @@ export default function Search() {
       sort: sortBy || null
     });
     setIsDrawerOpen(false);
+    handleSearch();
   };
 
   const removeFilter = (filterKey: string) => {
     updateSearchParams({ [filterKey]: null });
+    handleSearch();
   };
 
   return (
@@ -141,10 +196,11 @@ export default function Search() {
               <div className="flex space-x-2">
                 <Input
                   placeholder="Search products..."
-                  value={query}
+                  value={searchInput}
                   onChange={(e) => handleInputChange(e.target.value)}
                   className="w-64"
                 />
+                <Button onClick={handleSearchClick} disabled={isLoading}>Search</Button>
               </div>
             </div>
             <DrawerTrigger asChild>
@@ -182,7 +238,10 @@ export default function Search() {
             <p>Showing {products.length} Results</p>
             <Select
               value={sortBy}
-              onValueChange={(value) => updateSearchParams({ sort: value })}
+              onValueChange={(value) => {
+                updateSearchParams({ sort: value });
+                handleSearch();
+              }}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort By..." />
@@ -311,5 +370,14 @@ export default function Search() {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  );
+}
+
+// Main export component wrapped in Suspense
+export default function Search() {
+  return (
+    <Suspense fallback={<SearchLoading />}>
+      <SearchContent />
+    </Suspense>
   );
 }

@@ -1,8 +1,18 @@
-import { NextAuthOptions } from 'next-auth';
+import { NextAuthOptions, Session, User } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from 'crypto';
 import storefront from '@/utils/shopify';
+
+// Define custom types
+interface CustomUser extends User {
+    accessToken?: string;
+}
+
+interface CustomSession extends Session {
+    accessToken?: string;
+}
 
 const CREATE_CUSTOMER_MUTATION = `
   mutation customerCreate($input: CustomerCreateInput!) {
@@ -141,13 +151,13 @@ export const authOptions: NextAuthOptions = {
         },
         async jwt({ token, user, account }) {
             if (user && account?.provider === 'credentials') {
-                token.accessToken = (user as any).accessToken;
+                token.accessToken = (user as CustomUser).accessToken;
             }
             return token;
         },
-        async session({ session, token }) {
+        async session({ session, token }: { session: CustomSession; token: JWT }) {
             if (token) {
-                (session as any).accessToken = token.accessToken;
+                session.accessToken = token.accessToken as string;
             }
             return session;
         },

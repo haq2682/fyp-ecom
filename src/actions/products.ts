@@ -172,7 +172,7 @@ export async function searchProducts(searchParams: {
       }
     } = response.data;
 
-    const processedProducts = processResponse(edges.map((edge: any) => edge.node));
+    const processedProducts = processResponse(edges.map((edge: EdgeType) => edge.node));
 
     return {
       products: processedProducts,
@@ -263,7 +263,7 @@ export async function getHomeLatestProducts(): Promise<HomeProduct[]> {
   }
 }
 
-export async function getIndividualProduct(id: string): Promise<any> {
+export async function getIndividualProduct(id: string): Promise<IndividualProductResponseType> {
   // Note the change from 'gid:/shopify' to 'gid://shopify'
   const gid = `gid://shopify/Product/${id}`;
   const newId = btoa(gid);
@@ -306,9 +306,8 @@ export async function getIndividualProduct(id: string): Promise<any> {
 
   try {
     const response = await storefront(query, { id: newId });
-
-    // Process the response
     const product = response.data.product;
+    console.log(product.variants.nodes[0]);
     const idParts = product.id.split("/");
     const productId = idParts[idParts.length - 1];
     return {
@@ -317,18 +316,18 @@ export async function getIndividualProduct(id: string): Promise<any> {
         title: product.title,
         inStock: product.availableForSale,
         description: product.description,
-        images: product.images.nodes.map((image: any) => ({
+        images: product.images.nodes.map((image: IndividualProductImageType) => ({
           src: image.url,
           alt: image.altText || product.title
         })),
-        variants: product.variants.nodes.map((variant: any) => ({
+        variants: product.variants.nodes.map((variant: IndividualProductVariantType) => ({
           id: variant.id,
           title: variant.title,
           inStock: variant.availableForSale,
           price: Number(variant.price.amount),
           currency: variant.price.currencyCode,
           discountedPrice: variant.compareAtPrice ? Number(variant.compareAtPrice.amount) : null,
-          size: variant.selectedOptions.find((opt: any) => opt.name === "Size")?.value || null
+          size: variant.selectedOptions.find((opt: IndividualProductVariantType["selectedOptions"][0]) => opt.name === "Size")?.value || null
         }))
       }
     };
@@ -413,4 +412,90 @@ type BestOrLatestProduct = {
     }
   }
   title: string
+}
+
+type EdgeType = {
+  node: {
+    id: string,
+    title: string,
+    availableForSale: boolean,
+    compareAtPriceRange: {
+      minVariantPrice: {
+        amount: string,
+        currencyCode: string
+      }
+    },
+    featuredImage: {
+      url: string,
+      altText: string,
+    },
+    priceRange: {
+      minVariantPrice: {
+        amount: string,
+        currencyCode: string
+      }
+    },
+    variants: [
+      {
+        nodes: {
+          selectedOptions: {
+            name: string,
+            value: string,
+          }
+        }
+      }
+    ],
+    productType: string
+  }
+}
+
+type IndividualProductResponseType = {
+  data: {
+    id: string,
+    title: string,
+    inStock: boolean,
+    description: string,
+    images: [
+      {
+        src: string,
+        alt: string
+      }
+    ],
+    variants: [
+      {
+        id: string,
+        title: string,
+        inStock: boolean,
+        price: number,
+        currency: string,
+        discountedPrice: number | null,
+        size: string | null
+      }
+    ]
+  }
+}
+
+type IndividualProductImageType = {
+  url: string,
+  altText: string
+}
+
+type IndividualProductVariantType = {
+  id: string,
+  title: string,
+  availableForSale: boolean,
+  price: {
+    amount: string,
+    currencyCode: string,
+  },
+  compareAtPrice: {
+    amount: string,
+    currencyCode: string
+  },
+  selectedOptions: [
+    {
+      name: string,
+      value: string
+    }
+  ]
 }

@@ -4,10 +4,10 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { register } from "@/actions/authentication";
-import { useTheme } from "next-themes";
-import Loading from "@/components/ui/loading";
+// import { useTheme } from "next-themes";
+// import Loading from "@/components/ui/loading";
 export default function Register() {
-    const { theme } = useTheme();
+    // const { theme } = useTheme();
     const [state, formAction, pending] = useActionState(register, {
         status: '',
         message: ''
@@ -110,7 +110,8 @@ export default function Register() {
                                     type="submit"
                                     disabled={pending}
                                 >
-                                    Submit {pending && <Loading propColor={theme === 'light' ? 'white' : 'black'} propSize={20} />}
+                                    {/* Submit {pending && <Loading propColor={theme === 'light' ? 'white' : 'black'} propSize={20} />} */}
+                                    Submit {pending && <span>Loading...</span>}
                                 </Button>
                             </div>
                             <div className="text-center">

@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useActionState } from "react"
 import { forgotPassword } from "@/actions/authentication"
-import Loading from "@/components/ui/loading"
-import { useTheme } from "next-themes"
+// import Loading from "@/components/ui/loading"
+// import { useTheme } from "next-themes"
 import { useState } from "react"
 
 export default function ForgotPassword() {
@@ -14,7 +14,7 @@ export default function ForgotPassword() {
     status: "",
     message: "",
   })
-  const { theme } = useTheme()
+  // const { theme } = useTheme()
   const [email, setEmail] = useState("")
 
   return (
@@ -50,7 +50,8 @@ export default function ForgotPassword() {
 
             <div>
               <Button className="w-full rounded-sm" type="submit" disabled={pending}>
-                Reset Password {pending && <Loading propColor={theme === "light" ? "white" : "black"} propSize={20} />}
+                {/* Reset Password {pending && <Loading propColor={theme === "light" ? "white" : "black"} propSize={20} />} */}
+                Reset Password {pending && <span>Loading...</span>}
               </Button>
             </div>
 

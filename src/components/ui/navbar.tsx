@@ -20,7 +20,7 @@ import { useTheme } from "next-themes"
 import { useSession } from "next-auth/react"
 import { BiLogInCircle } from "react-icons/bi"
 import { getProductTypes } from "@/actions/products"
-import SearchBar from "@/components/searchbar"
+// import SearchBar from "@/components/searchbar"
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme()
@@ -102,7 +102,7 @@ export default function Navbar() {
           </div>
           <div className="flex items-center">
             <div className="w-[40vw] lg:w-[20vw] mr-4">
-              <SearchBar />
+              {/* <SearchBar /> */}
             </div>
             <div className="hidden lg:flex items-center">
               {status === "authenticated" ? (

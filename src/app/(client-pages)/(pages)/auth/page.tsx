@@ -3,23 +3,26 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useActionState } from "react";
 import { login } from "@/actions/authentication";
-import Loading from "@/components/ui/loading";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
+import { redirect } from "next/navigation";
 
 export default function Login() {
     const [state, formAction, pending] = useActionState(login, {
         status: '',
         message: '',
     });
-    const { theme } = useTheme();
+    // const { theme } = useTheme();
     const [formState, setFormState] = useState({ email: '', password: '' });
     const [googleLoading, setGoogleLoading] = useState(false);
+    const { status } = useSession();
+
+    if (status) redirect('/home');
 
     useEffect(() => {
         if (state.status === 'success') {
@@ -71,14 +74,14 @@ export default function Login() {
                         "
                         disabled={googleLoading || pending}
                     >
-                        {googleLoading ? (
+                        {/* {googleLoading ? (
                             <Loading propColor={theme === 'light' ? 'black' : 'white'} propSize={20} />
                         ) : (
                             <>
                                 Authenticate with Google
                                 <FcGoogle className="text-xl" />
                             </>
-                        )}
+                        )} */}
                     </Button>
 
                     <div className="flex justify-center items-center my-6">
@@ -148,10 +151,11 @@ export default function Login() {
                                 disabled={pending || googleLoading}
                             >
                                 Submit {pending && (
-                                    <Loading
-                                        propColor={theme === 'light' ? 'white' : 'black'}
-                                        propSize={20}
-                                    />
+                                    // <Loading
+                                    //     propColor={theme === 'light' ? 'white' : 'black'}
+                                    //     propSize={20}
+                                    // />
+                                    <span>Loading...</span>
                                 )}
                             </Button>
                         </div>
@@ -164,7 +168,7 @@ export default function Login() {
 
                         <div className="text-center">
                             <p>
-                                Don't have an account?
+                                Do not have an account?
                                 <Link
                                     href="/auth/register"
                                     className="ml-1 font-bold hover:text-neutral-500 transition-color duration-200"

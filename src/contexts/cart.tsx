@@ -30,6 +30,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           setCart(cartData);
           setCartId(storedCartId);
         } catch (error) {
+          console.error('Error initializing cart', error);
           localStorage.removeItem('cartId');
           const newCart = await createCart();
           setCart(newCart);

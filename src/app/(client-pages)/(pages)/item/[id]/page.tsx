@@ -13,14 +13,49 @@ import { useCart } from '@/contexts/cart';
 import { addToCart } from '@/actions/cart';
 import { toast } from 'sonner';
 
+//Local Types
+type VariantType = {
+    id: string,
+    title: string,
+    inStock: boolean,
+    price: number,
+    currency: string,
+    discountedPrice: number | null;
+    size: string | null
+}
+
+type ProductType = {
+    id: string,
+    title: string,
+    inStock: boolean,
+    description: string,
+    images: [
+        {
+            src: string,
+            alt: string
+        }
+    ],
+    variants: [
+        {
+            id: string,
+            title: string,
+            inStock: boolean,
+            price: number,
+            currency: string,
+            discountedPrice: number | null,
+            size: string | null
+        }
+    ]
+}
+
 export default function Component({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const [loading, setLoading] = useState<boolean>(false);
     const [quantity, setQuantity] = useState(1)
-    const [selectedVariant, setSelectedVariant] = useState<any>(null);
+    const [selectedVariant, setSelectedVariant] = useState<VariantType | null>(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [error, setError] = useState<string>('');
-    const [product, setProduct] = useState<any>(null);
+    const [product, setProduct] = useState<ProductType | null>(null);
     const { cartId, refetchCart } = useCart();
     const [isAddingToCart, setIsAddingToCart] = useState(false);
 
@@ -56,6 +91,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
             await refetchCart();
             toast.success('Added to cart successfully');
         } catch (error) {
+            console.error('Failed to add to cart', error);
             toast.error('Failed to add to cart');
         } finally {
             setIsAddingToCart(false);
@@ -63,9 +99,11 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
     };
 
     const handleVariantChange = (size: string) => {
-        const variant = product.variants.find((v: any) => v.size === size);
-        if (variant) {
-            setSelectedVariant(variant);
+        if(product) {
+            const variant = product.variants.find((v: VariantType) => v.size === size);
+            if (variant) {
+                setSelectedVariant(variant);
+            }
         }
     };
 
@@ -102,7 +140,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                     </div>
 
                     <div className="grid grid-cols-4 gap-2">
-                        {product.images.map((image: any, index: number) => (
+                        {product.images.map((image: {src: string, alt: string}, index: number) => (
                             <button
                                 key={index}
                                 onClick={() => setSelectedImageIndex(index)}
@@ -157,16 +195,16 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                         <div>
                             <h3 className="text-sm font-medium mb-3">SELECT SIZE</h3>
                             <RadioGroup
-                                defaultValue={selectedVariant.size}
+                                defaultValue={selectedVariant.size as string}
                                 onValueChange={handleVariantChange}
                                 className="flex flex-wrap gap-2"
                             >
                                 {product.variants
-                                    .filter((variant: any) => variant.size)
-                                    .map((variant: any) => (
+                                    .filter((variant: VariantType) => variant.size)
+                                    .map((variant: VariantType) => (
                                         <div key={variant.id}>
                                             <RadioGroupItem
-                                                value={variant.size}
+                                                value={variant.size as string}
                                                 id={`size-${variant.size}`}
                                                 className="sr-only"
                                                 disabled={!variant.inStock}
