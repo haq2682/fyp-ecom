@@ -8,6 +8,8 @@ import { RiMedalLine } from "react-icons/ri";
 import ProductItem from "@/components/product/product-item";
 import { getHomeBestSellingProducts, getHomeLatestProducts } from "@/actions/products";
 import { HomeProduct } from "@/types";
+import { ClipLoader } from "react-spinners";
+
 export default function Home() {
     const [bestSellingProducts, setBestSellingProducts] = useState<HomeProduct[] | null>(null);
     const [bestSellingLoading, setBestSellingLoading] = useState<boolean>(false);
@@ -24,7 +26,7 @@ export default function Home() {
                 const response: HomeProduct[] = await getHomeBestSellingProducts();
                 setBestSellingProducts(response);
             }
-            catch(error) {
+            catch (error) {
                 console.error(error);
                 setBestSellingError('An error occurred while fetching Best Selling Products');
             }
@@ -55,6 +57,7 @@ export default function Home() {
 
         fetchLatestProducts();
     }, []);
+
     return (
         <>
             <div className="space-y-12">
@@ -70,6 +73,7 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
+
                 <div className="mx-auto container">
                     <div className="bg-background">
                         <div className="mx-auto container flex flex-col md:flex-row md:justify-between items-center md:items-start py-8 px-12 flex-wrap my-16">
@@ -97,6 +101,7 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
+
                 <div className="mx-auto container space-y-16">
                     <div className="text-center">
                         <h5 className="text-zinc-500 font-black">SHOP NOW</h5>
@@ -105,20 +110,23 @@ export default function Home() {
                     <div className="flex items-center flex-wrap justify-center md:justify-between">
                         {
                             bestSellingLoading ? (
-                                <div className="text-center w-full">Loading...</div>
+                                <div className="flex justify-center items-center w-full h-64">
+                                    <ClipLoader color="#000" size={30} />
+                                </div>
                             ) : (
                                 bestSellingError ? (
-                                <div className="text-red-500 text-center w-full">{bestSellingError}</div>
-                            ) : (
-                                bestSellingProducts && bestSellingProducts.map((product: HomeProduct, index: number) => {
-                                    return (
-                                        <ProductItem key={index} {...product}/>
-                                    )
-                                })
-                            ))
+                                    <div className="text-red-500 text-center w-full">{bestSellingError}</div>
+                                ) : (
+                                    bestSellingProducts && bestSellingProducts.map((product: HomeProduct, index: number) => {
+                                        return (
+                                            <ProductItem key={index} {...product} />
+                                        )
+                                    })
+                                ))
                         }
                     </div>
                 </div>
+
                 <div className="bg-secondary">
                     <div className="mx-auto container flex flex-col items-center md:flex-row md:justify-between py-8 px-12">
                         <div className="text-center md:text-left">
@@ -131,6 +139,7 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
+
                 <div className="mx-auto container space-y-16 pb-24">
                     <div className="text-center">
                         <h5 className="text-zinc-500 font-black">SHOP NOW</h5>
@@ -139,7 +148,9 @@ export default function Home() {
                     <div className="flex items-center flex-wrap justify-center md:justify-between">
                         {
                             latestProductsLoading ? (
-                                <div className="text-center w-full">Loading...</div>
+                                <div className="flex justify-center items-center w-full h-64">
+                                    <ClipLoader color="#000" size={30} />
+                                </div>
                             ) : (
                                 latestProductsError ? (
                                     <div className="text-red-500 text-center w-full">{latestProductsError}</div>
