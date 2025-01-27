@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useActionState } from "react"
 import { forgotPassword } from "@/actions/authentication"
-// import Loading from "@/components/ui/loading"
 // import { useTheme } from "next-themes"
+import { ClipLoader } from "react-spinners"
 import { useState } from "react"
 
 export default function ForgotPassword() {
@@ -50,8 +50,12 @@ export default function ForgotPassword() {
 
             <div>
               <Button className="w-full rounded-sm" type="submit" disabled={pending}>
-                {/* Reset Password {pending && <Loading propColor={theme === "light" ? "white" : "black"} propSize={20} />} */}
-                Reset Password {pending && <span>Loading...</span>}
+                Reset Password {pending && <div className="p-4 flex justify-center items-center">
+                  <ClipLoader color="#000" size={24} />
+                </div>}
+                Reset Password {pending && <div className="p-4 flex justify-center items-center">
+                  <ClipLoader color="#000" size={24} />
+                </div>}
               </Button>
             </div>
 
