@@ -102,7 +102,7 @@ export default function Navbar() {
           </div>
           <div className="flex items-center">
             <div className="w-[40vw] lg:w-[20vw] mr-4">
-              {/* <SearchBar /> */}
+              <SearchBar /> 
             </div>
             <div className="hidden lg:flex items-center">
               {status === "authenticated" ? (
