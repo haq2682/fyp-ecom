@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-// import { FcGoogle } from "react-icons/fc";
+import { FcGoogle } from "react-icons/fc";
+import { ClipLoader } from "react-spinners"
 import Link from "next/link";
 import { signIn, useSession } from 'next-auth/react';
 import { useActionState } from "react";
@@ -74,14 +75,16 @@ export default function Login() {
                         "
                         disabled={googleLoading || pending}
                     >
-                        {/* {googleLoading ? (
-                            <Loading propColor={theme === 'light' ? 'black' : 'white'} propSize={20} />
+                        {googleLoading ? (
+                            <div className="p-4 flex justify-center items-center">
+                                <ClipLoader color="#000" size={24} />
+                            </div>
                         ) : (
                             <>
                                 Authenticate with Google
                                 <FcGoogle className="text-xl" />
                             </>
-                        )} */}
+                        )}
                     </Button>
 
                     <div className="flex justify-center items-center my-6">
@@ -151,11 +154,9 @@ export default function Login() {
                                 disabled={pending || googleLoading}
                             >
                                 Submit {pending && (
-                                    // <Loading
-                                    //     propColor={theme === 'light' ? 'white' : 'black'}
-                                    //     propSize={20}
-                                    // />
-                                    <span>Loading...</span>
+                                    <div className="p-4 flex justify-center items-center">
+                                        <ClipLoader color="#000" size={24} />
+                                    </div>
                                 )}
                             </Button>
                         </div>
