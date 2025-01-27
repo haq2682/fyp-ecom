@@ -20,7 +20,7 @@ import { useTheme } from "next-themes"
 import { useSession } from "next-auth/react"
 import { BiLogInCircle } from "react-icons/bi"
 import { getProductTypes } from "@/actions/products"
-// import SearchBar from "@/components/searchbar"
+import SearchBar from "@/components/searchbar"
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme()
