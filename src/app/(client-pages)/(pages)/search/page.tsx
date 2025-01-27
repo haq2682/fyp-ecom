@@ -19,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { getProductTypes, searchProducts } from "@/actions/products";
 import { HomeProduct } from "@/types";
+import { ClipLoader } from "react-spinners";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -259,7 +260,9 @@ function SearchContent() {
           {/* Products Grid */}
           <div className="flex justify-center flex-wrap">
             {isLoading ? (
-              <p>Loading products...</p>
+              <div className="p-4 flex justify-center items-center">
+                <ClipLoader color="#000" size={30} />
+              </div>
             ) : products.length > 0 ? (
               <>
                 {products.map((product, index) => (
@@ -279,7 +282,9 @@ function SearchContent() {
                 disabled={isLoadingMore}
                 variant="outline"
               >
-                {isLoadingMore ? "Loading..." : "Load More"}
+                {isLoadingMore ? <div className="p-4 flex justify-center items-center">
+                  <ClipLoader color="#000" size={30} />
+                </div> : "Load More"}
               </Button>
             </div>
           )}
@@ -339,7 +344,7 @@ function SearchContent() {
                   placeholder="Min"
                   value={minPrice}
                   onChange={(e) => updateSearchParams({ minPrice: e.target.value || null })}
-                  className="w-24"
+                  className="w-30"
                 />
               </div>
               <span className="text-xl">-</span>
@@ -350,7 +355,7 @@ function SearchContent() {
                   placeholder="Max"
                   value={maxPrice}
                   onChange={(e) => updateSearchParams({ maxPrice: e.target.value || null })}
-                  className="w-24"
+                  className="w-30"
                 />
               </div>
             </div>
