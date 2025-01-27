@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { searchProducts } from "@/actions/products"
 import { useRouter } from "next/navigation"
 import type { HomeProduct } from "@/types/index"
+import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
 const SearchBar = () => {
@@ -86,7 +87,9 @@ const SearchBar = () => {
       {showSuggestions && query.length >= 2 && (
         <div className="absolute z-50 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-[400px] overflow-y-auto">
           {isLoading ? (
-            <div className="p-4 text-center text-gray-500">Loading...</div>
+            <div className="p-4 flex justify-center items-center">
+              <Loader2 className="animate-spin h-8 w-8 text-primary" />
+            </div>
           ) : suggestions.length > 0 ? (
             <ul className="py-2">
               {suggestions.map((product) => (
