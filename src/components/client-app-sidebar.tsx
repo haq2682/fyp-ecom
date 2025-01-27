@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { ChevronDown } from "lucide-react"
 import { IoClose } from "react-icons/io5"
 import { useRouter } from "next/navigation"
+import { ClipLoader} from "react-spinners"
 
 import {
   Sidebar,
@@ -80,7 +81,9 @@ export function AppSidebar() {
                     {isLoading ? (
                       <SidebarMenuItem>
                         <SidebarMenuButton>
-                          <span>Loading categories...</span>
+                          <div className="p-4 flex justify-center items-center">
+                            <ClipLoader color="#000" size={24} />
+                          </div>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ) : (
