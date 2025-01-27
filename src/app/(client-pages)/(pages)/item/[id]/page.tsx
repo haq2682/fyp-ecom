@@ -12,6 +12,7 @@ import Link from "next/link"
 import { useCart } from '@/contexts/cart';
 import { addToCart } from '@/actions/cart';
 import { toast } from 'sonner';
+import { ClipLoader} from "react-spinners"
 
 //Local Types
 type VariantType = {
@@ -108,7 +109,9 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
     };
 
     if (loading) {
-        return <div className="text-center font-bold text-xl">Loading...</div>
+        return <div className="p-4 flex justify-center items-center  w-full h-64">
+        <ClipLoader color="#000" size={30} />
+        </div>
     }
     else if (error) {
         return <div className="text-center text-red-500 font-bold text-xl">{error}</div>
