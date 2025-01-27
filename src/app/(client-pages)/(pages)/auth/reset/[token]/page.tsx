@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { resetPassword } from "@/actions/authentication"
-// import Loading from "@/components/ui/loading"
+import { ClipLoader } from "react-spinners"
 // import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -148,11 +148,9 @@ export default function ResetPassword() {
               >
                 Reset Password{" "}
                 {isPending && (
-                  // <Loading
-                  //   propColor={theme === "light" ? "white" : "black"}
-                  //   propSize={20}
-                  // />
-                  <span>Loading...</span>
+                  <div className="p-4 flex justify-center items-center">
+                    <ClipLoader color="#000" size={24} />
+                  </div>
                 )}
               </Button>
             </div>
