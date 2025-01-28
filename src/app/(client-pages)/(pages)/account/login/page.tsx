@@ -23,7 +23,7 @@ export default function Login() {
     const [googleLoading, setGoogleLoading] = useState(false);
     const { status } = useSession();
 
-    if (status) redirect('/home');
+    if (status === 'authenticated') redirect('/home');
 
     useEffect(() => {
         if (state.status === 'success') {

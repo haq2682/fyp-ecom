@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { resetPassword } from "@/actions/authentication"
 import { ClipLoader } from "react-spinners"
-// import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useActionState } from "react"
@@ -18,7 +17,6 @@ interface FormState {
 export default function ResetPassword() {
   const params = useParams()
   const router = useRouter()
-  // const { theme } = useTheme()
 
   const initialState = {
     status: "",
@@ -33,14 +31,14 @@ export default function ResetPassword() {
     confirm_password: "",
   })
 
-  // Redirect if no token is present
+
   useEffect(() => {
     if (!params.token) {
       router.push('/auth/login')
     }
   }, [params.token, router])
 
-  // Redirect on successful password reset
+
   useEffect(() => {
     if (state?.status === "success") {
       setTimeout(() => {
@@ -49,7 +47,7 @@ export default function ResetPassword() {
     }
   }, [state?.status, router])
 
-  // Handle form submission
+
   const handleSubmit = async (formData: FormData) => {
     setIsPending(true)
     try {
@@ -59,7 +57,7 @@ export default function ResetPassword() {
     }
   }
 
-  // Get and decode token from URL parameters
+
   const token = params.token ? decodeURIComponent(params.token.toString()) : ''
 
   return (
@@ -70,7 +68,7 @@ export default function ResetPassword() {
           <input type="hidden" name="resetToken" value={token} />
 
           <div className="w-full space-y-8">
-            {/* Password Input */}
+
             <div>
               <Input
                 placeholder="New Password"
@@ -99,7 +97,7 @@ export default function ResetPassword() {
               )}
             </div>
 
-            {/* Confirm Password Input */}
+
             <div>
               <Input
                 placeholder="Confirm New Password"
@@ -128,7 +126,7 @@ export default function ResetPassword() {
               )}
             </div>
 
-            {/* Form-level Errors */}
+
             {state?.errors?._form && (
               <div className="text-sm text-destructive text-center">
                 {state.errors._form.map((error: string, index: number) => (
@@ -139,7 +137,7 @@ export default function ResetPassword() {
               </div>
             )}
 
-            {/* Submit Button */}
+
             <div>
               <Button
                 className="w-full rounded-sm"
@@ -155,7 +153,7 @@ export default function ResetPassword() {
               </Button>
             </div>
 
-            {/* Success Message */}
+
             {state?.status === "success" && (
               <div className="text-green-700 dark:text-green-300 text-center">
                 {state.message}
@@ -163,12 +161,12 @@ export default function ResetPassword() {
               </div>
             )}
 
-            {/* Login Link */}
+
             <div className="text-center">
               <p>
                 Remember your password?{" "}
                 <Link
-                  href="/auth/login"
+                  href="/auth"
                   className="ml-1 font-bold hover:text-neutral-500 transition-colors duration-200"
                 >
                   Login Here

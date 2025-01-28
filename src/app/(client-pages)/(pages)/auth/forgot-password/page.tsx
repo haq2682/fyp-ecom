@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useActionState } from "react"
 import { forgotPassword } from "@/actions/authentication"
-// import { useTheme } from "next-themes"
 import { ClipLoader } from "react-spinners"
 import { useState } from "react"
 
@@ -14,7 +13,6 @@ export default function ForgotPassword() {
     status: "",
     message: "",
   })
-  // const { theme } = useTheme()
   const [email, setEmail] = useState("")
 
   return (

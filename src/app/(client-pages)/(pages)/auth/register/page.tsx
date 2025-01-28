@@ -4,10 +4,8 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { register } from "@/actions/authentication";
-// import { useTheme } from "next-themes";
 import { ClipLoader } from "react-spinners"
 export default function Register() {
-    // const { theme } = useTheme();
     const [state, formAction, pending] = useActionState(register, {
         status: '',
         message: ''

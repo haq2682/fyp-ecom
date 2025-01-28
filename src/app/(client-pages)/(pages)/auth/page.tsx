@@ -6,24 +6,18 @@ import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import { ClipLoader } from "react-spinners"
 import Link from "next/link";
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { useActionState } from "react";
 import { login } from "@/actions/authentication";
-// import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import { redirect } from "next/navigation";
 
 export default function Login() {
     const [state, formAction, pending] = useActionState(login, {
         status: '',
         message: '',
     });
-    // const { theme } = useTheme();
     const [formState, setFormState] = useState({ email: '', password: '' });
     const [googleLoading, setGoogleLoading] = useState(false);
-    const { status } = useSession();
-
-    if (status) redirect('/home');
 
     useEffect(() => {
         if (state.status === 'success') {
