@@ -5,12 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { useActionState } from "react";
 import { login } from "@/actions/authentication";
-// import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import { redirect } from "next/navigation";
 import { ClipLoader } from "react-spinners";
 
 export default function Login() {
@@ -18,12 +16,8 @@ export default function Login() {
         status: '',
         message: '',
     });
-    // const { theme } = useTheme();
     const [formState, setFormState] = useState({ email: '', password: '' });
     const [googleLoading, setGoogleLoading] = useState(false);
-    const { status } = useSession();
-
-    if (status === 'authenticated') redirect('/home');
 
     useEffect(() => {
         if (state.status === 'success') {
@@ -140,7 +134,7 @@ export default function Login() {
                                 </div>
                             )}
                             <Link
-                                href="/auth/reset-password"
+                                href="/account/reset-password"
                                 className="text-right text-sm font-bold hover:text-neutral-500 transition-color duration-200 block"
                             >
                                 Forgot Password?
@@ -171,7 +165,7 @@ export default function Login() {
                             <p>
                                 Do not have an account?
                                 <Link
-                                    href="/auth/register"
+                                    href="/account/register"
                                     className="ml-1 font-bold hover:text-neutral-500 transition-color duration-200"
                                 >
                                     Sign Up Here

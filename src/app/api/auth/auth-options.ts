@@ -63,7 +63,7 @@ export const authOptions: NextAuthOptions = {
                 httpOnly: true,
                 sameSite: 'lax',
                 path: '/',
-                secure: true
+                // secure: true
             }
         }
     },
@@ -169,7 +169,7 @@ export const authOptions: NextAuthOptions = {
         }
     },
     pages: {
-        signIn: `${process.env.SHOPIFY_STORE_DOMAIN}/auth`,
+        signIn: `${process.env.SHOPIFY_STORE_DOMAIN}/account/login`,
     },
     session: {
         strategy: 'jwt'

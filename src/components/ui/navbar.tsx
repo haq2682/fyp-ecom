@@ -93,7 +93,7 @@ export default function Navbar() {
                   Contact
                 </NavigationMenuLink>
                 {status === "authenticated" && (
-                  <NavigationMenuLink href="/admin" className="hover:bg-secondary p-3 rounded-lg">
+                  <NavigationMenuLink href={`${process.env.SHOPIFY_STORE_DOMAIN}/admin`} className="hover:bg-secondary p-3 rounded-lg">
                     Admin
                   </NavigationMenuLink>
                 )}
@@ -123,7 +123,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link
-                    href="/auth"
+                    href="/account/login"
                     className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg"
                   >
                     <BiLogInCircle size={27} />

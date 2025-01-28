@@ -20,6 +20,7 @@ import Link from "next/link"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
 import { useTheme } from "next-themes"
 import { getProductTypes } from "@/actions/products"
+import {useSession} from 'next-auth/react';
 
 export function AppSidebar() {
   const { toggleSidebar } = useSidebar()
@@ -27,6 +28,7 @@ export function AppSidebar() {
   const [productTypes, setProductTypes] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const {status} = useSession();
 
   useEffect(() => {
     const fetchProductTypes = async () => {
@@ -119,16 +121,19 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {
+                status === 'authenticated' && 
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/account/login">
+                      <span>Log In</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              }
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href="/auth">
-                    <span>Log In</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="#">
+                  <Link href="/profile">
                     <span>Profile</span>
                   </Link>
                 </SidebarMenuButton>
