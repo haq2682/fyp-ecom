@@ -4,7 +4,7 @@ import * as z from 'zod';
 import { signIn } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import storefront from '@/utils/shopify';
-import type { LoginFormState, LoginAction } from '@/types';
+import type { LoginFormState } from '@/types';
 import { cookies } from 'next/headers';
 
 const nameMessage = "Name must contain at least 8 characters and at most 15 characters";
