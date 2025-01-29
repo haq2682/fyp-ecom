@@ -92,11 +92,6 @@ export default function Navbar() {
                 <NavigationMenuLink href="/contact" className="hover:bg-secondary p-3 rounded-lg">
                   Contact
                 </NavigationMenuLink>
-                {status === "authenticated" && (
-                  <NavigationMenuLink href={`${process.env.SHOPIFY_STORE_DOMAIN}/admin`} className="hover:bg-secondary p-3 rounded-lg">
-                    Admin
-                  </NavigationMenuLink>
-                )}
               </NavigationMenuList>
             </NavigationMenu>
           </div>

@@ -122,7 +122,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {
-                status === 'authenticated' && 
+                status !== 'authenticated' && 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <Link href="/account/login">
@@ -132,11 +132,14 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               }
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/profile">
-                    <span>Profile</span>
-                  </Link>
-                </SidebarMenuButton>
+                {
+                  status !== 'authenticated' &&
+                  <SidebarMenuButton asChild>
+                    <Link href="/profile">
+                      <span>Profile</span>
+                    </Link>
+                  </SidebarMenuButton>
+                }
                 <SidebarMenuButton>
                   <span onClick={() => setTheme(() => (theme === "light" ? "dark" : "light"))}>Toggle Theme</span>
                 </SidebarMenuButton>
