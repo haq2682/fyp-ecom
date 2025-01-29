@@ -25,7 +25,27 @@ function LoginForm() {
     const router = useRouter();
 
     const checkoutUrl = searchParams.get('checkout_url');
-    const callbackUrl = checkoutUrl || '/';
+    // const callbackUrl = checkoutUrl || '/';
+
+    const handleCheckoutRedirect = (checkoutUrl: string | null) => {
+        if (!checkoutUrl) {
+            router.push('/');
+            return;
+        }
+
+        // Decode the URL first
+        const decodedUrl = decodeURIComponent(checkoutUrl);
+
+        // Check if it's a full URL or just a path
+        if (decodedUrl.startsWith('http')) {
+            // If it's a full URL, redirect to it directly
+            window.location.href = decodedUrl;
+        } else {
+            // If it's a relative path, prepend your Shopify store domain
+            const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_SHOP_URL?.replace('/api/2025-01/graphql.json', '') || 'https://university-fyp.myshopify.com';
+            window.location.href = `${shopifyDomain}${decodedUrl}`;
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,17 +60,13 @@ function LoginForm() {
 
             if (result?.error) {
                 console.error('Sign in error:', result.error);
-                // Handle error case
                 setIsLoading(false);
                 return;
             }
 
-            // If sign in was successful and we have a checkout URL, redirect there
-            if (checkoutUrl) {
-                router.push(decodeURIComponent(checkoutUrl));
-            } else {
-                router.push('/'); // or wherever your default redirect should go
-            }
+            // Use the new handleCheckoutRedirect function
+            handleCheckoutRedirect(checkoutUrl);
+
         } catch (error) {
             console.error('Sign in error:', error);
             setIsLoading(false);
@@ -61,8 +77,9 @@ function LoginForm() {
         e.preventDefault();
         try {
             setGoogleLoading(true);
+            // For Google sign-in, we'll let NextAuth handle the redirect
             await signIn('google', {
-                callbackUrl,
+                callbackUrl: checkoutUrl || '/',
                 redirect: true,
             });
         } catch (error) {

@@ -150,20 +150,17 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
         async redirect({ url, baseUrl }) {
-            // Check if there's a checkout URL in the callback
-            const checkoutUrlParam = new URL(url).searchParams.get('checkout_url');
-            if (checkoutUrlParam) {
-                // Decode the checkout URL if it exists
-                const decodedCheckoutUrl = decodeURIComponent(checkoutUrlParam);
-                return `${baseUrl}${decodedCheckoutUrl}`;
+            // If the url starts with a slash, it's a relative path
+            if (url.startsWith('/')) {
+                return `${baseUrl}${url}`;
             }
-
-            // If url starts with baseUrl, return as is
-            if (url.startsWith(baseUrl)) return url;
-
-            // Default to baseUrl
+            // If it's a Shopify checkout URL, allow it
+            else if (url.includes('/checkouts/') || url.includes('myshopify.com')) {
+                return url;
+            }
+            // For any other URLs, redirect to the base URL
             return baseUrl;
-        }
+        },
     },
     pages: {
         signIn: `/account/login`,
