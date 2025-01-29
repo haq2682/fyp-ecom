@@ -127,3 +127,14 @@ export interface Cart {
         ]
     }
 }
+
+export interface LoginFormState {
+    status: string;
+    message: string;
+    errors?: {
+        email?: string[];
+        password?: string[];
+    };
+}
+
+export type LoginAction = (formData: FormData) => Promise<LoginFormState>;
