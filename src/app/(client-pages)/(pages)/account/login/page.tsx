@@ -8,38 +8,62 @@ import Link from "next/link";
 import { signIn } from 'next-auth/react';
 import { useActionState } from "react";
 import { login } from "@/actions/authentication";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { ClipLoader } from "react-spinners";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 // Login Form Component
 function LoginForm() {
-    const [state, formAction, pending] = useActionState(login, {
+    const [state] = useActionState(login, {
         status: '',
         message: '',
     });
     const [formState, setFormState] = useState({ email: '', password: '' });
     const [googleLoading, setGoogleLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const searchParams = useSearchParams();
-    const checkoutUrl = searchParams.get('checkout_url');
+    const router = useRouter();
 
-    useEffect(() => {
-        if (state.status === 'success') {
-            signIn('credentials', {
+    const checkoutUrl = searchParams.get('checkout_url');
+    const callbackUrl = checkoutUrl || '/';
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const result = await signIn('credentials', {
                 email: formState.email,
                 password: formState.password,
-                redirect: true,
-                callbackUrl: checkoutUrl || '/'
+                redirect: false,
             });
+
+            if (result?.error) {
+                console.error('Sign in error:', result.error);
+                // Handle error case
+                setIsLoading(false);
+                return;
+            }
+
+            // If sign in was successful and we have a checkout URL, redirect there
+            if (checkoutUrl) {
+                router.push(decodeURIComponent(checkoutUrl));
+            } else {
+                router.push('/'); // or wherever your default redirect should go
+            }
+        } catch (error) {
+            console.error('Sign in error:', error);
+            setIsLoading(false);
         }
-    }, [state.status, formState, checkoutUrl]);
+    };
 
     const handleGoogleSignIn = async (e: React.MouseEvent) => {
         e.preventDefault();
         try {
             setGoogleLoading(true);
             await signIn('google', {
-                callbackUrl: checkoutUrl || '/'
+                callbackUrl,
+                redirect: true,
             });
         } catch (error) {
             console.error('Google sign in error:', error);
@@ -48,7 +72,7 @@ function LoginForm() {
     };
 
     return (
-        <form action={formAction} className="w-80 flex flex-col items-center">
+        <form onSubmit={handleSubmit} className="w-80 flex flex-col items-center">
             <Button
                 onClick={handleGoogleSignIn}
                 type="button"
@@ -69,7 +93,7 @@ function LoginForm() {
                     justify-center
                     gap-2
                 "
-                disabled={googleLoading || pending}
+                disabled={googleLoading || isLoading}
             >
                 {googleLoading ? (
                     <div className="p-4 flex justify-center items-center">
@@ -102,7 +126,7 @@ function LoginForm() {
                         required
                         value={formState.email}
                         onChange={(e) => setFormState(prev => ({ ...prev, email: e.target.value }))}
-                        disabled={pending}
+                        disabled={isLoading}
                     />
                     {state.errors?.email && (
                         <div className="text-sm text-destructive mt-2">
@@ -126,7 +150,7 @@ function LoginForm() {
                         required
                         value={formState.password}
                         onChange={(e) => setFormState(prev => ({ ...prev, password: e.target.value }))}
-                        disabled={pending}
+                        disabled={isLoading}
                     />
                     {state.errors?.password && (
                         <div className="text-sm text-destructive my-2">
@@ -147,12 +171,14 @@ function LoginForm() {
                     <Button
                         className="w-full rounded-sm"
                         type="submit"
-                        disabled={pending || googleLoading}
+                        disabled={isLoading || googleLoading}
                     >
-                        Submit {pending && (
+                        {isLoading ? (
                             <div className="p-4 flex justify-center items-center">
                                 <ClipLoader color="#000" size={24} />
                             </div>
+                        ) : (
+                            'Submit'
                         )}
                     </Button>
                 </div>
