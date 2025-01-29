@@ -2,6 +2,7 @@
 import { SiVisa } from "react-icons/si";
 import { SiMastercard } from "react-icons/si";
 import { GrAmex } from "react-icons/gr";
+import Link from "next/link";
 export default function Footer() {
     return (
         <>
@@ -12,21 +13,21 @@ export default function Footer() {
                         <p className="w-56">A sample e-commerce web application in NextJS for Practice Purposes</p>
                     </div>
                     <div className="flex justify-center text-center flex-col sm:flex-row sm:space-x-8">
-                        <div className="space-y-1 mb-8">
+                        <div className="space-y-1 mb-8 flex flex-col">
                             <h2 className="text-lg font-bold text-neutral-500 mb-5">FAQ</h2>
-                            <p>Terms of Use</p>
-                            <p>Privacy Policy</p>
+                            <Link href="/terms" className="hover:underline">Terms of Use</Link>
+                            <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
                         </div>
-                        <div className="space-y-1 mb-8">
+                        <div className="space-y-1 mb-8 flex flex-col">
                             <h2 className="text-lg font-bold text-neutral-500 mb-5">COMPANY</h2>
-                            <p>About Us</p>
-                            <p>Contact Us</p>
+                            <Link href="/about" className="hover:underline">About Us</Link>
+                            <Link href="/contact" className="hover:underline">Contact Us</Link>
                         </div>
-                        <div className="space-y-1 mb-8">
+                        <div className="space-y-1 mb-8 flex flex-col">
                             <h2 className="text-lg font-bold text-neutral-500 mb-5">SHOP</h2>
-                            <p>My Account</p>
-                            <p>Checkout</p>
-                            <p>Cart</p>
+                            <Link href="/profile" className="hover:underline">My Account</Link>
+                            <Link href="/cart/checkout" className="hover:underline">Checkout</Link>
+                            <Link href="/cart" className="hover:underline">Cart</Link>
                         </div>
                     </div>
                     <div className="text-center">
