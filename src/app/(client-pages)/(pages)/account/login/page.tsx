@@ -53,6 +53,8 @@ function LoginForm() {
             setFormState(result);
 
             if (result.status === 'success') {
+                toast.success('Login successful');
+
                 const signInResult = await signIn('credentials', {
                     email: formData.get('email'),
                     password: formData.get('password'),
@@ -60,21 +62,30 @@ function LoginForm() {
                 });
 
                 if (signInResult?.error) {
-                    toast.error("Failed to authenticate");
+                    toast.error("Failed to authenticate with NextAuth");
                     return;
                 }
 
                 if (checkoutUrl) {
-                    window.location.href = decodeURIComponent(checkoutUrl);
+                    // Server will handle redirect for checkout
+                    return;
                 } else {
                     window.location.href = '/';
                 }
             } else if (result.status === 'error') {
-                toast.error(result.message);
+                if (result.message) {
+                    toast.error(result.message);
+                }
             }
         } catch (error) {
             console.error('Form submission error:', error);
-            toast.error('An error occurred during login');
+            const errorMessage = error instanceof Error ? error.message : 'An error occurred during login';
+            toast.error(errorMessage);
+            setFormState({
+                status: 'error',
+                message: errorMessage,
+                errors: undefined
+            });
         } finally {
             setPending(false);
         }

@@ -170,11 +170,28 @@ export async function register(previousState: RegisterFormState, formData: FormD
 
 export async function login(previousState: LoginFormState, formData: FormData): Promise<LoginFormState> {
   try {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const checkoutUrl = formData.get('checkoutUrl') as string;
+    // Extract form data
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const checkoutUrl = formData.get('checkoutUrl');
 
-    const result = userLoginSchema.safeParse({ email, password });
+    // Validate form data exists
+    if (!email || !password) {
+      return {
+        status: 'error',
+        message: 'Email and password are required',
+        errors: {
+          email: !email ? ['Email is required'] : undefined,
+          password: !password ? ['Password is required'] : undefined
+        }
+      };
+    }
+
+    // Type check and validate input
+    const result = userLoginSchema.safeParse({
+      email: email.toString(),
+      password: password.toString()
+    });
 
     if (!result.success) {
       return {
@@ -184,70 +201,98 @@ export async function login(previousState: LoginFormState, formData: FormData): 
       };
     }
 
-    try {
-      // Authenticate with Shopify
-      const response = await storefront(CUSTOMER_ACCESS_TOKEN_CREATE, {
-        input: {
-          email,
-          password
-        }
-      });
-
-      const { customerAccessTokenCreate } = response.data;
-
-      if (customerAccessTokenCreate.customerUserErrors.length > 0) {
-        return {
-          status: 'error',
-          message: 'Invalid credentials',
-          errors: {
-            email: ['Invalid email or password'],
-            password: ['Invalid email or password']
-          }
-        };
+    // Authenticate with Shopify
+    const response = await storefront(CUSTOMER_ACCESS_TOKEN_CREATE, {
+      input: {
+        email: email.toString(),
+        password: password.toString()
       }
+    });
 
-      // Get the access token
-      const accessToken = customerAccessTokenCreate.customerAccessToken.accessToken;
-
-      // Set the access token in a cookie
-      (await
-        // Set the access token in a cookie
-        cookies()).set('shopifyCustomerAccessToken', accessToken, {
-          secure: true,
-          httpOnly: true,
-          sameSite: 'lax',
-          path: '/',
-        });
-
-      // If we have a checkout URL, redirect to Shopify's checkout
-      if (checkoutUrl) {
-        const decodedUrl = decodeURIComponent(checkoutUrl);
-        const shopifyDomain = 'https://university-fyp.myshopify.com';
-        const separator = decodedUrl.includes('?') ? '&' : '?';
-        redirect(`${shopifyDomain}${decodedUrl}${separator}access_token=${accessToken}`);
-      }
-
-      return {
-        status: 'success',
-        message: 'Login Successful',
-      };
-
-    } catch (error) {
-      console.error('Login error:', error);
+    if (!response?.data) {
+      console.error('No data received from Shopify:', response);
       return {
         status: 'error',
-        message: 'An unexpected error occurred',
+        message: 'Authentication failed',
         errors: {
-          email: ['An unexpected error occurred'],
-          password: ['An unexpected error occurred']
+          email: ['Authentication failed'],
+          password: ['Authentication failed']
         }
       };
     }
+
+    const { customerAccessTokenCreate } = response.data;
+
+    if (customerAccessTokenCreate.customerUserErrors?.length > 0) {
+      const error = customerAccessTokenCreate.customerUserErrors[0];
+      console.error('Shopify authentication error:', error);
+      return {
+        status: 'error',
+        message: 'Invalid credentials',
+        errors: {
+          email: ['Invalid email or password'],
+          password: ['Invalid email or password']
+        }
+      };
+    }
+
+    // Get and validate access token
+    const accessToken = customerAccessTokenCreate.customerAccessToken?.accessToken;
+    if (!accessToken) {
+      console.error('No access token received from Shopify');
+      return {
+        status: 'error',
+        message: 'Authentication failed',
+        errors: {
+          email: ['Authentication failed'],
+          password: ['Authentication failed']
+        }
+      };
+    }
+
+    // Set cookie
+    const cookieStore = cookies();
+    (await cookieStore).set('shopifyCustomerAccessToken', accessToken);
+
+    // Handle checkout redirection
+    if (checkoutUrl) {
+      const decodedUrl = decodeURIComponent(checkoutUrl.toString());
+      const shopifyDomain = 'https://university-fyp.myshopify.com';
+      const separator = decodedUrl.includes('?') ? '&' : '?';
+      const redirectUrl = `${shopifyDomain}${decodedUrl}${separator}access_token=${accessToken}`;
+      redirect(redirectUrl);
+    }
+
+    // Return success
+    return {
+      status: 'success',
+      message: 'Login Successful'
+    };
+
   } catch (error) {
-    console.error('Login error:', error);
+    // Log the complete error
+    console.error('Unexpected error during login:', error);
+
+    // Return a more specific error message if possible
+    if (error instanceof Error) {
+      return {
+        status: 'error',
+        message: `Login failed: ${error.message}`,
+        errors: {
+          email: [`Error: ${error.message}`],
+          password: [`Error: ${error.message}`]
+        }
+      };
+    }
+
+    // Generic error response
     return {
       status: 'error',
-      message: 'An unexpected error occurred'
+      message: 'An unexpected error occurred during login',
+      errors: {
+        email: ['Login failed'],
+        password: ['Login failed']
+      }
     };
   }
 }
