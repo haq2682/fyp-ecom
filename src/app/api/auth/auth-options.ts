@@ -55,18 +55,6 @@ function generateRandomString(length: number): string {
 }
 
 export const authOptions: NextAuthOptions = {
-    // useSecureCookies: true,
-    // cookies: {
-    //     sessionToken: {
-    //         name: `__Secure-next-auth.session-token`,
-    //         options: {
-    //             httpOnly: true,
-    //             sameSite: 'lax',
-    //             path: '/',
-    //             secure: true
-    //         }
-    //     }
-    // },
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_ID as string,
@@ -162,14 +150,23 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
         async redirect({ url, baseUrl }) {
-            if (url.startsWith(baseUrl)) {
-                return url;
+            // Check if there's a checkout URL in the callback
+            const checkoutUrlParam = new URL(url).searchParams.get('checkout_url');
+            if (checkoutUrlParam) {
+                // Decode the checkout URL if it exists
+                const decodedCheckoutUrl = decodeURIComponent(checkoutUrlParam);
+                return `${baseUrl}${decodedCheckoutUrl}`;
             }
+
+            // If url starts with baseUrl, return as is
+            if (url.startsWith(baseUrl)) return url;
+
+            // Default to baseUrl
             return baseUrl;
         }
     },
     pages: {
-        signIn: `${process.env.SHOPIFY_STORE_DOMAIN}/account/login`,
+        signIn: `/account/login`,
     },
     session: {
         strategy: 'jwt'

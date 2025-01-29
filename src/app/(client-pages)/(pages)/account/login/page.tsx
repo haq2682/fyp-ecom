@@ -10,6 +10,7 @@ import { useActionState } from "react";
 import { login } from "@/actions/authentication";
 import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
+import { useSearchParams } from 'next/navigation';
 
 export default function Login() {
     const [state, formAction, pending] = useActionState(login, {
@@ -18,6 +19,8 @@ export default function Login() {
     });
     const [formState, setFormState] = useState({ email: '', password: '' });
     const [googleLoading, setGoogleLoading] = useState(false);
+    const searchParams = useSearchParams();
+    const checkoutUrl = searchParams.get('checkout_url');
 
     useEffect(() => {
         if (state.status === 'success') {
@@ -25,17 +28,17 @@ export default function Login() {
                 email: formState.email,
                 password: formState.password,
                 redirect: true,
-                callbackUrl: `${process.env.SHOPIFY_STORE_DOMAIN}/home`
+                callbackUrl: checkoutUrl || '/'
             });
         }
-    }, [state.status, formState]);
+    }, [state.status, formState, checkoutUrl]);
 
     const handleGoogleSignIn = async (e: React.MouseEvent) => {
         e.preventDefault();
         try {
             setGoogleLoading(true);
             await signIn('google', {
-                callbackUrl: `${process.env.SHOPIFY_STORE_DOMAIN}/home`
+                callbackUrl: checkoutUrl || '/'
             });
         } catch (error) {
             console.error('Google sign in error:', error);
