@@ -55,15 +55,15 @@ function generateRandomString(length: number): string {
 }
 
 export const authOptions: NextAuthOptions = {
-    useSecureCookies: true,
+    // useSecureCookies: true,
     cookies: {
         sessionToken: {
-            name: `__Secure-next-auth.session-token`,
+            // name: `__Secure-next-auth.session-token`,
             options: {
                 httpOnly: true,
                 sameSite: 'lax',
                 path: '/',
-                // secure: true
+                secure: true
             }
         }
     },

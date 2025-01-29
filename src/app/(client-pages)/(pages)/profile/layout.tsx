@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
 import { User, Truck, Key, Package } from "lucide-react"; import { usePathname } from "next/navigation";
-;
+import {useSession} from 'next-auth/react';
+import {redirect} from 'next/navigation';
 export default function ProfileLayout({ children }: { children: Readonly<React.ReactNode> }) {
+    const {status} = useSession();
+    if(status !== 'authenticated') redirect('/');
     const pathname = usePathname();
     return (
         <>
