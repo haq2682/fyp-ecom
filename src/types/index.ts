@@ -131,6 +131,7 @@ export interface Cart {
 export interface LoginFormState {
     status: string;
     message: string;
+    redirectUrl?: string;
     errors?: {
         email?: string[];
         password?: string[];

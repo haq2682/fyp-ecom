@@ -66,9 +66,9 @@ function LoginForm() {
                     return;
                 }
 
-                if (checkoutUrl) {
-                    // Server will handle redirect for checkout
-                    return;
+                // Handle redirect based on the response
+                if (result.redirectUrl) {
+                    window.location.href = result.redirectUrl;
                 } else {
                     window.location.href = '/';
                 }

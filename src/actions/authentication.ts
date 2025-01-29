@@ -170,12 +170,10 @@ export async function register(previousState: RegisterFormState, formData: FormD
 
 export async function login(previousState: LoginFormState, formData: FormData): Promise<LoginFormState> {
   try {
-    // Extract form data
     const email = formData.get('email');
     const password = formData.get('password');
     const checkoutUrl = formData.get('checkoutUrl');
 
-    // Validate form data exists
     if (!email || !password) {
       return {
         status: 'error',
@@ -187,7 +185,6 @@ export async function login(previousState: LoginFormState, formData: FormData): 
       };
     }
 
-    // Type check and validate input
     const result = userLoginSchema.safeParse({
       email: email.toString(),
       password: password.toString()
@@ -201,7 +198,6 @@ export async function login(previousState: LoginFormState, formData: FormData): 
       };
     }
 
-    // Authenticate with Shopify
     const response = await storefront(CUSTOMER_ACCESS_TOKEN_CREATE, {
       input: {
         email: email.toString(),
@@ -210,7 +206,6 @@ export async function login(previousState: LoginFormState, formData: FormData): 
     });
 
     if (!response?.data) {
-      console.error('No data received from Shopify:', response);
       return {
         status: 'error',
         message: 'Authentication failed',
@@ -224,8 +219,6 @@ export async function login(previousState: LoginFormState, formData: FormData): 
     const { customerAccessTokenCreate } = response.data;
 
     if (customerAccessTokenCreate.customerUserErrors?.length > 0) {
-      const error = customerAccessTokenCreate.customerUserErrors[0];
-      console.error('Shopify authentication error:', error);
       return {
         status: 'error',
         message: 'Invalid credentials',
@@ -236,10 +229,9 @@ export async function login(previousState: LoginFormState, formData: FormData): 
       };
     }
 
-    // Get and validate access token
     const accessToken = customerAccessTokenCreate.customerAccessToken?.accessToken;
+
     if (!accessToken) {
-      console.error('No access token received from Shopify');
       return {
         status: 'error',
         message: 'Authentication failed',
@@ -254,41 +246,30 @@ export async function login(previousState: LoginFormState, formData: FormData): 
     const cookieStore = cookies();
     (await cookieStore).set('shopifyCustomerAccessToken', accessToken);
 
-    // Handle checkout redirection
+    // Instead of redirecting, return the URL to the client
     if (checkoutUrl) {
       const decodedUrl = decodeURIComponent(checkoutUrl.toString());
       const shopifyDomain = 'https://university-fyp.myshopify.com';
       const separator = decodedUrl.includes('?') ? '&' : '?';
       const redirectUrl = `${shopifyDomain}${decodedUrl}${separator}access_token=${accessToken}`;
-      redirect(redirectUrl);
+
+      return {
+        status: 'success',
+        message: 'Login Successful',
+        redirectUrl: redirectUrl // Add redirectUrl to the response
+      };
     }
 
-    // Return success
     return {
       status: 'success',
       message: 'Login Successful'
     };
 
   } catch (error) {
-    // Log the complete error
-    console.error('Unexpected error during login:', error);
-
-    // Return a more specific error message if possible
-    if (error instanceof Error) {
-      return {
-        status: 'error',
-        message: `Login failed: ${error.message}`,
-        errors: {
-          email: [`Error: ${error.message}`],
-          password: [`Error: ${error.message}`]
-        }
-      };
-    }
-
-    // Generic error response
+    console.error('Login error:', error);
     return {
       status: 'error',
-      message: 'An unexpected error occurred during login',
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
       errors: {
         email: ['Login failed'],
         password: ['Login failed']
