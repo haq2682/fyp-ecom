@@ -13,7 +13,7 @@ export default function Contact() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Have a question or concern? We're here to help. Reach out to us through any of the following channels.
+          {"Have a question or concern? We're here to help. Reach out to us through any of the following channels."}
         </p>
       </div>
 
@@ -22,7 +22,7 @@ export default function Contact() {
           <Card>
             <CardHeader>
               <CardTitle>Get in Touch</CardTitle>
-              <CardDescription>Fill out the form and we'll get back to you as soon as possible.</CardDescription>
+              <CardDescription>{"We'll get back to you as soon as possible."}</CardDescription>
             </CardHeader>
             <CardContent>
               <form className="space-y-4">
