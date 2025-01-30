@@ -1,10 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Mail, MapPin, Phone } from "lucide-react"
 
 export default function Contact() {
@@ -17,45 +13,7 @@ export default function Contact() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-12">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Get in Touch</CardTitle>
-              <CardDescription>{"We'll get back to you as soon as possible."}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="first-name">First name</Label>
-                    <Input id="first-name" placeholder="Enter your first name" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last-name">Last name</Label>
-                    <Input id="last-name" placeholder="Enter your last name" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="Enter your email" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" placeholder="Enter subject" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea id="message" placeholder="Enter your message" className="min-h-[150px]" />
-                </div>
-                <Button type="submit" className="w-full">
-                  Send Message
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-
+      <div className="grid gap-12">
         <div className="space-y-6">
           <Card>
             <CardHeader>
