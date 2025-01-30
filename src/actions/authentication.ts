@@ -36,15 +36,6 @@ interface RegisterFormState {
   };
 }
 
-// interface LoginFormState {
-//   status: string;
-//   message: string;
-//   errors?: {
-//     email?: string[];
-//     password?: string[];
-//   }
-// }
-
 const CREATE_CUSTOMER_MUTATION = `
   mutation customerCreate($input: CustomerCreateInput!) {
     customerCreate(input: $input) {
