@@ -6,6 +6,7 @@ import { FaArrowRight } from "react-icons/fa6"
 import { LuShieldCheck, LuTruck } from "react-icons/lu"
 import { RiMedalLine } from "react-icons/ri"
 import ProductItem from "@/components/product/product-item"
+
 import { getHomeBestSellingProducts, getHomeLatestProducts } from "@/actions/products"
 import type { HomeProduct } from "@/types"
 import { ClipLoader } from "react-spinners"
@@ -77,7 +78,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="mt-16 md:mt-0">
-              <Image src="https://img.freepik.com/free-vector/stylish-new-arrival-sale-offer-background-brush-stroke-style_1017-49946.jpg?semt=ais_hybrid" width={400} height={400} alt="Sample Photo" />
+              <img src="@components/new_arrival.jpg" width={400} height={400} alt="Sample Photo" />
             </div>
           </div>
         </div>
@@ -149,7 +150,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="mt-16 md:mt-0">
-              <Image src="https://img.freepik.com/free-vector/exchange-offer-trendy-banner-design_1017-33509.jpg?ga=GA1.1.1992070656.1738257631&semt=ais_hybrid" width={500} height={500}  alt="Sample Photo" />
+              <img src="@components/sales.jpg" width={500} height={500}  alt="Sample Photo" />
             </div>
           </div>
         </div>
