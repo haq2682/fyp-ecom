@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Building2, Clock, Globe2, Users } from 'lucide-react'
+import { Building2, Clock, Globe2, Users } from "lucide-react"
 
 export default function About() {
   return (
@@ -10,7 +10,7 @@ export default function About() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">About Us</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          We're passionate about bringing you the latest fashion trends while maintaining quality and affordability.
+          {"We're passionate about bringing you the latest fashion trends while maintaining quality and affordability."}
         </p>
       </div>
 
@@ -76,16 +76,18 @@ export default function About() {
         <Card>
           <CardHeader>
             <CardTitle>Our Story</CardTitle>
-            <CardDescription>
-              From humble beginnings to a global fashion destination
-            </CardDescription>
+            <CardDescription>From humble beginnings to a global fashion destination</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              Founded in 2015, our journey began with a simple mission: to make quality fashion accessible to everyone. What started as a small boutique has grown into a global fashion destination, serving customers across more than 50 countries.
+              {
+                "Founded in 2015, our journey began with a simple mission: to make quality fashion accessible to everyone. What started as a small boutique has grown into a global fashion destination, serving customers across more than 50 countries."
+              }
             </p>
             <p>
-              We believe that style shouldn't come with a hefty price tag. Our commitment to quality, affordability, and customer satisfaction has helped us build a community of over 1 million satisfied customers worldwide.
+              {
+                "We believe that style shouldn't come with a hefty price tag. Our commitment to quality, affordability, and customer satisfaction has helped us build a community of over 1 million satisfied customers worldwide."
+              }
             </p>
           </CardContent>
         </Card>
@@ -93,9 +95,7 @@ export default function About() {
         <Card>
           <CardHeader>
             <CardTitle>Our Values</CardTitle>
-            <CardDescription>
-              The principles that guide everything we do
-            </CardDescription>
+            <CardDescription>The principles that guide everything we do</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -107,7 +107,9 @@ export default function About() {
                 <Badge variant="secondary">Customer First</Badge>
               </div>
               <p>
-                We're committed to sustainable fashion practices, ensuring our products are ethically sourced and environmentally conscious. Our innovative approach to fashion retail combines traditional craftsmanship with modern technology to deliver the best possible shopping experience.
+                {
+                  "We're committed to sustainable fashion practices, ensuring our products are ethically sourced and environmentally conscious. Our innovative approach to fashion retail combines traditional craftsmanship with modern technology to deliver the best possible shopping experience."
+                }
               </p>
             </div>
           </CardContent>
@@ -116,3 +118,4 @@ export default function About() {
     </div>
   )
 }
+
