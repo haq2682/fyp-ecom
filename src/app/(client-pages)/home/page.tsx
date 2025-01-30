@@ -77,7 +77,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="mt-16 md:mt-0">
-              <Image src="https://img.freepik.com/free-vector/stylish-new-arrival-sale-offer-background-brush-stroke-style_1017-49946.jpg?semt=ais_hybrid" width={400} height={400} alt="Sample Photo" />
+              <Image src="https://i.pinimg.com/736x/b6/ea/19/b6ea1903badc779dd207f932dba3a9b8.jpg" width={400} height={400} alt="Sample Photo" />
             </div>
           </div>
         </div>
