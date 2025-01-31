@@ -47,14 +47,14 @@ export default function ForgotPassword() {
             </div>
 
             <div>
-              <Button className="w-full rounded-sm" type="submit" disabled={pending}>
-                Reset Password {pending && <div className="p-4 flex justify-center items-center">
-                  <ClipLoader color="#000" size={24} />
-                </div>}
-                Reset Password {pending && <div className="p-4 flex justify-center items-center">
-                  <ClipLoader color="#000" size={24} />
-                </div>}
+             <Button className="w-full rounded-sm flex justify-center items-center" type="submit" disabled={pending}>
+              {pending ? (
+                    <ClipLoader color="#000" size={24} />
+                ) : (
+                      "Reset Password"
+                    )}
               </Button>
+
             </div>
 
             {state.status === "success" && (
