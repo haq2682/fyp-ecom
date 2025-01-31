@@ -78,7 +78,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="mt-16 md:mt-0">
-              <img src="@components/new_arrival.jpg" width={400} height={400} alt="Sample Photo" />
+              <Image src="/images/new_arrival.jpg" width={400} height={400} alt="Sample Photo" />
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="mt-16 md:mt-0">
-              <img src="@components/sales.jpg" width={500} height={500}  alt="Sample Photo" />
+              <Image src="/images/sales.jpg" width={500} height={500}  alt="Sample Photo" />
             </div>
           </div>
         </div>
