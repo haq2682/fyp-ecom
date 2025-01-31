@@ -101,18 +101,17 @@ export default function Register() {
                             </div>
                             <div>
                                 <Button
-                                    className="
-                                        w-full 
-                                        rounded-sm
-                                    "
-                                    type="submit"
-                                    disabled={pending}
-                                >
-                                    Submit {pending && <div className="p-4 flex justify-center items-center">
+                                      className="w-full rounded-sm flex justify-center items-center"
+                                      type="submit"
+                                      disabled={pending}
+                                    >
+                                      {pending ? (
                                         <ClipLoader color="#000" size={24} />
-                                    </div>}
+                                      ) : (
+                                        "Submit"
+                                      )}
+                                    </Button>
 
-                                </Button>
                             </div>
                             <div className="text-center">
                                 <p>Already have an account?
