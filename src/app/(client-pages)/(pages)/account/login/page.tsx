@@ -192,7 +192,7 @@ function LoginForm() {
                         </div>
                     )}
                     <Link
-                        href="/account/reset-password"
+                        href="/account/forgot-password"
                         className="text-right text-sm font-bold hover:text-neutral-500 transition-color duration-200 block"
                     >
                         Forgot Password?
