@@ -90,7 +90,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
 
     const handleVariantChange = (size: string) => {
         if (product) {
-            const variant = product.variants.find(v => v.size === size);
+            const variant = product.variants.find(v => v.title === size);
             if (variant) {
                 setSelectedVariant(variant);
             }
@@ -115,9 +115,8 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
 
     // Group variants by size for easier rendering
     const availableSizes = product.variants
-        .filter(variant => variant.size)
-        .map(variant => variant.size)
-        .filter((size): size is string => size !== null);
+        .filter(variant => variant.title)
+        .map(variant => variant.title);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -202,12 +201,12 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                             <div>
                                 <h3 className="text-sm font-medium mb-3">SELECT SIZE</h3>
                                 <RadioGroup
-                                    defaultValue={selectedVariant.size || ''}
+                                    defaultValue={selectedVariant.title}
                                     onValueChange={handleVariantChange}
                                     className="flex flex-wrap gap-2"
                                 >
                                     {availableSizes.map((size) => {
-                                        const variant = product.variants.find(v => v.size === size);
+                                        const variant = product.variants.find(v => v.title === size);
                                         const isAvailable = variant?.inStock || variant?.currentlyNotInStock;
 
                                         return (
@@ -220,11 +219,11 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                                                 />
                                                 <Label
                                                     htmlFor={`size-${size}`}
-                                                    className={`px-4 py-2 border rounded cursor-pointer ${selectedVariant.size === size
-                                                        ? "border-primary bg-primary/10"
-                                                        : isAvailable
-                                                            ? "border-input hover:bg-accent"
-                                                            : "border-input bg-muted cursor-not-allowed opacity-50"
+                                                    className={`px-4 py-2 border rounded cursor-pointer ${selectedVariant.title === size
+                                                            ? "border-primary bg-primary/10"
+                                                            : isAvailable
+                                                                ? "border-input hover:bg-accent"
+                                                                : "border-input bg-muted cursor-not-allowed opacity-50"
                                                         }`}
                                                 >
                                                     {size}
