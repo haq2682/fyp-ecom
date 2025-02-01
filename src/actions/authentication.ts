@@ -233,11 +233,9 @@ export async function login(previousState: LoginFormState, formData: FormData): 
       };
     }
 
-    // Set cookie
     const cookieStore = cookies();
     (await cookieStore).set('shopifyCustomerAccessToken', accessToken);
 
-    // Instead of redirecting, return the URL to the client
     if (checkoutUrl) {
       const decodedUrl = decodeURIComponent(checkoutUrl.toString());
       const shopifyDomain = 'https://university-fyp.myshopify.com';
@@ -247,7 +245,7 @@ export async function login(previousState: LoginFormState, formData: FormData): 
       return {
         status: 'success',
         message: 'Login Successful',
-        redirectUrl: redirectUrl // Add redirectUrl to the response
+        redirectUrl: redirectUrl
       };
     }
 
@@ -404,9 +402,6 @@ export async function resetPassword(
         errors: result.error.flatten().fieldErrors,
       }
     }
-
-    // The resetToken from Shopify contains both the customer ID and token
-    // Format: customerId/resetToken
     const [customerId, token] = resetToken.split('/')
 
     if (!customerId || !token) {
@@ -423,7 +418,7 @@ export async function resetPassword(
       id: `gid://shopify/Customer/${customerId}`,
       input: {
         password,
-        resetToken: token  // Use only the token part
+        resetToken: token
       },
     })
 

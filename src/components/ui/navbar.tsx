@@ -97,17 +97,17 @@ export default function Navbar() {
           </div>
           <div className="flex items-center">
             <div className="w-[40vw] lg:w-[20vw] mr-4">
-              <SearchBar /> 
+              <SearchBar />
             </div>
             <div className="hidden lg:flex items-center">
+              <Link
+                href="/cart"
+                className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg"
+              >
+                <IoCartOutline size={27} />
+              </Link>
               {status === "authenticated" ? (
                 <>
-                  <Link
-                    href="/cart"
-                    className="mr-3 ml-6 px-4 py-2 bg-background text-foreground hover:bg-secondary transition-colors duration-200 rounded-lg"
-                  >
-                    <IoCartOutline size={27} />
-                  </Link>
                   <Link
                     className="ml-3 bg-background px-4 py-2 rounded-lg transition-colors duration-200 text-foreground hover:bg-secondary"
                     href="/profile"

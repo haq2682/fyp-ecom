@@ -1,5 +1,8 @@
+"use server";
 import storefront from "@/utils/shopify";
 import { gql } from "graphql-request";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { cookies } from "next/headers";
 
 export async function createCart() {
   const mutation = gql`
@@ -283,5 +286,28 @@ export async function getCart(cartId: string) {
   } catch (error) {
     console.error('Error fetching cart:', error);
     throw new Error('Failed to fetch cart');
+  }
+}
+
+export async function cartAuthenticate(cartId: string) {
+  const token: RequestCookie = (await cookies()).get('shopifyCustomerAccessToken') as RequestCookie
+  const mutation: string = gql`
+    mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerAccessToken: String!) {
+      cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: {customerAccessToken: $buyerAccessToken}) {
+        cart {
+          id
+          checkoutUrl
+        }
+      }
+    }
+  `;
+  try {
+    const response = await storefront(mutation, { cartId: cartId, buyerAccessToken: token.value });
+    const { checkoutUrl } = response.data.cartBuyerIdentityUpdate.cart;
+    return checkoutUrl;
+  }
+  catch (error) {
+    console.error('Failed to authenticate for checkout', error);
+    throw new Error('Failed to authenticate for checkout');
   }
 }

@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials";
 import crypto from 'crypto';
 import storefront from '@/utils/shopify';
+import { cookies } from 'next/headers';
 
 // Define custom types
 interface CustomUser extends User {
@@ -87,6 +88,9 @@ export const authOptions: NextAuthOptions = {
 
                     const accessToken = customerAccessTokenCreate.customerAccessToken.accessToken;
 
+                    const cookieStore = cookies();
+                    (await cookieStore).set('shopifyCustomerAccessToken', accessToken);
+
                     return {
                         id: accessToken,
                         email: credentials.email,
@@ -129,6 +133,29 @@ export const authOptions: NextAuthOptions = {
                         }
                     }
 
+                    const tokenResponse = await storefront(CUSTOMER_ACCESS_TOKEN_CREATE, {
+                        input: {
+                            email,
+                            password
+                        }
+                    });
+
+                    const { customerAccessTokenCreate } = tokenResponse.data;
+
+                    if (customerAccessTokenCreate.customerUserErrors.length > 0) {
+                        console.error('Error creating access token:', customerAccessTokenCreate.customerUserErrors);
+                        return false;
+                    }
+
+                    const accessToken = customerAccessTokenCreate.customerAccessToken.accessToken;
+
+                    const cookieStore = cookies();
+                    (await cookieStore).set('shopifyCustomerAccessToken', accessToken);
+
+                    if (user && typeof user === 'object') {
+                        (user as CustomUser).accessToken = accessToken;
+                    }
+
                     return true;
                 } catch (error) {
                     console.error('Error during Google sign in:', error);
@@ -138,7 +165,7 @@ export const authOptions: NextAuthOptions = {
             return true;
         },
         async jwt({ token, user, account }) {
-            if (user && account?.provider === 'credentials') {
+            if (user && (account?.provider === 'credentials' || account?.provider === 'google')) {
                 token.accessToken = (user as CustomUser).accessToken;
             }
             return token;
@@ -150,15 +177,12 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
         async redirect({ url, baseUrl }) {
-            // If the url starts with a slash, it's a relative path
             if (url.startsWith('/')) {
                 return `${baseUrl}${url}`;
             }
-            // If it's a Shopify checkout URL, allow it
             else if (url.includes('/checkouts/') || url.includes('myshopify.com')) {
                 return url;
             }
-            // For any other URLs, redirect to the base URL
             return baseUrl;
         },
     },

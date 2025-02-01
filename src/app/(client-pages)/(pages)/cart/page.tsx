@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button"
 import { FaRegTrashCan } from "react-icons/fa6"
 import Link from "next/link"
 import { useCart } from '@/contexts/cart'
-import { updateCart, removeFromCart } from '@/actions/cart'
+import { updateCart, removeFromCart, cartAuthenticate } from '@/actions/cart'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner';
 import { Cart } from '@/types'
+import { useSession } from "next-auth/react"
+import { ClipLoader } from "react-spinners"
+import { useRouter } from 'next/navigation'
 
 //Local Types
 type CartItemLine = Cart["lines"]["edges"][0]["node"]
@@ -21,9 +24,13 @@ export default function CartPage() {
     const { cart, cartId, refetchCart } = useCart();
     const [currency, setCurrency] = useState<string>('');
     const [updatingLines, setUpdatingLines] = useState<Set<string>>(new Set());
+    const { status } = useSession();
+    const [checkoutLoading, setCheckoutLoading] = useState<boolean>(false);
+    const [checkoutError, setCheckoutError] = useState<string>('');
+    const router = useRouter();
 
     useEffect(() => {
-        if(cart) setCurrency(cart.lines.edges[0]?.node.merchandise.price.currencyCode);
+        if (cart) setCurrency(cart.lines.edges[0]?.node.merchandise.price.currencyCode);
     }, [cart]);
 
     const handleUpdateQuantity = async (lineId: string, currentQuantity: number, increment: number) => {
@@ -67,6 +74,23 @@ export default function CartPage() {
             });
         }
     };
+
+    const handleCheckout = async () => {
+        if (cart) {
+            setCheckoutLoading(true);
+            try {
+                const url = await cartAuthenticate(cart.id as string);
+                router.push(url);
+            }
+            catch (error) {
+                console.error('Failed to checkout', error);
+                setCheckoutError('An unexpected error occurred while checkout');
+            }
+            finally {
+                setCheckoutLoading(false);
+            }
+        }
+    }
 
     const CartItem = ({ line }: { line: CartItemLine }) => {
         const isUpdating = updatingLines.has(line.id);
@@ -134,7 +158,7 @@ export default function CartPage() {
 
     const cartLines = cart.lines.edges.map((edge: CartLinesEdge): CartItemLine => edge.node);
     const subtotal = cartLines.reduce((acc: number, line: CartItemLine) => acc + (parseFloat(line.merchandise.price.amount) * line.quantity), 0);
-    const shipping = 250.00;
+    const shipping = 0.00;
     const total = subtotal + shipping;
 
     return (
@@ -164,16 +188,30 @@ export default function CartPage() {
                         <p>Grand Total</p>
                         <p className="font-bold">{currency} {total.toFixed(2)}</p>
                     </div>
-                    <div className="flex justify-center">
-                        <Button
-                            asChild
-                            className="mt-8 w-full rounded-sm"
-                            size="lg"
-                        >
-                            <Link href={cart.checkoutUrl}>
-                                Checkout
-                            </Link>
-                        </Button>
+                    <div className="flex justify-center items-center flex-col">
+                        {
+                            status === 'authenticated' ? (
+                                <>
+                                    <Button
+                                        className="mt-8 w-full rounded-sm"
+                                        size="lg"
+                                        onClick={handleCheckout}
+                                        disabled={checkoutLoading}
+                                    >
+                                        {
+                                            checkoutLoading ? <ClipLoader color="#000" size={24} /> : "Checkout"
+                                        }
+                                    </Button>
+                                    {
+                                        checkoutError && <p className="text-red-500 text-center mt-4">{checkoutError}</p>
+                                    }
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-center mt-4 text-sm">You need to be logged in to checkout. <Link href="/account/login" className="font-bold hover:underline">Login Here</Link></p>
+                                </>
+                            )
+                        }
                     </div>
                     <div className="flex justify-center">
                         <Button variant="link" asChild className="underline mt-4">
