@@ -285,7 +285,7 @@ export async function getIndividualProduct(id: string): Promise<IndividualProduc
             id
             title
             availableForSale
-            currenctlyNotInStock
+            currentlyNotInStock
             price {
               amount
               currencyCode
@@ -307,7 +307,6 @@ export async function getIndividualProduct(id: string): Promise<IndividualProduc
   try {
     const response = await storefront(query, { id: newId });
     const product = response.data.product;
-    console.log(product.variants.nodes[0]);
     const idParts = product.id.split("/");
     const productId = idParts[idParts.length - 1];
     return {
@@ -325,7 +324,8 @@ export async function getIndividualProduct(id: string): Promise<IndividualProduc
           return {
             id: variant.id,
             title: variant.title,
-            inStock: variant.currentlyNotInStock,
+            inStock: variant.availableForSale,
+            currentlyNotInStock: variant.currentlyNotInStock,
             price: hasDiscount ? Number(variant.compareAtPrice.amount) : Number(variant.price.amount),
             currency: variant.price.currencyCode,
             discountedPrice: hasDiscount ? Number(variant.price.amount) : null,
@@ -350,11 +350,9 @@ const processResponse = (nodes: ShopifyProduct[]): HomeProduct[] => {
       .find(opt => opt.name === "Size");
     const sizes = sizeOption ? [sizeOption.value] : [];
 
-    // Check if there's a valid compareAtPrice
     const hasDiscount = product.compareAtPriceRange?.minVariantPrice?.amount
       && Number(product.compareAtPriceRange.minVariantPrice.amount) > 0;
 
-    // Swap prices if discount exists
     const price = hasDiscount
       ? Number(product.compareAtPriceRange.minVariantPrice.amount)
       : Number(product.priceRange.minVariantPrice.amount);

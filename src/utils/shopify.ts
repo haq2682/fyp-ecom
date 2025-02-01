@@ -10,14 +10,14 @@ export default async function storefront(query: string, variables = {}) {
       variables
     });
     if (response.data.errors?.length > 0) {
-      console.log("Shopify Query", response.data.errors);
+      console.error("Shopify Query", response.data.errors[0]);
       throw new Error(response.data.errors[0]);
     }
     return response.data;
   }
 
   catch (error) {
-    console.log("Shopify Catch", error);
+    console.error("Shopify Catch", error);
     if (axios.isAxiosError(error)) {
       console.error('Axios Error:', error);
       throw new Error('API request failed');
