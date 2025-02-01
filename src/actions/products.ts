@@ -26,7 +26,7 @@ export async function getCategories() {
     response.data.products.nodes.forEach((node: CategoryProductNode) => node.category ? categories.add(node.category.name) : null);
     return categories;
   }
-  catch(error) {
+  catch (error) {
     console.error('Error fetching categories', error);
     throw new Error('Failed to fetch categories');
   }
@@ -218,7 +218,7 @@ export async function getHomeBestSellingProducts(): Promise<HomeProduct[]> {
     const products: HomeProduct[] = homeProcessResponse(response);
     return products;
   }
-  catch(error) {
+  catch (error) {
     console.error('Error fetching Best Selling Products', error);
     throw new Error('Failed to fetch Best Selling Products');
   }
@@ -264,7 +264,6 @@ export async function getHomeLatestProducts(): Promise<HomeProduct[]> {
 }
 
 export async function getIndividualProduct(id: string): Promise<IndividualProductResponseType> {
-  // Note the change from 'gid:/shopify' to 'gid://shopify'
   const gid = `gid://shopify/Product/${id}`;
   const newId = btoa(gid);
 
@@ -286,6 +285,7 @@ export async function getIndividualProduct(id: string): Promise<IndividualProduc
             id
             title
             availableForSale
+            currenctlyNotInStock
             price {
               amount
               currencyCode
@@ -320,15 +320,18 @@ export async function getIndividualProduct(id: string): Promise<IndividualProduc
           src: image.url,
           alt: image.altText || product.title
         })),
-        variants: product.variants.nodes.map((variant: IndividualProductVariantType) => ({
-          id: variant.id,
-          title: variant.title,
-          inStock: variant.availableForSale,
-          price: Number(variant.price.amount),
-          currency: variant.price.currencyCode,
-          discountedPrice: variant.compareAtPrice ? Number(variant.compareAtPrice.amount) : null,
-          size: variant.selectedOptions.find((opt: IndividualProductVariantType["selectedOptions"][0]) => opt.name === "Size")?.value || null
-        }))
+        variants: product.variants.nodes.map((variant: IndividualProductVariantType) => {
+          const hasDiscount = variant.compareAtPrice && Number(variant.compareAtPrice.amount) > 0;
+          return {
+            id: variant.id,
+            title: variant.title,
+            inStock: variant.currentlyNotInStock,
+            price: hasDiscount ? Number(variant.compareAtPrice.amount) : Number(variant.price.amount),
+            currency: variant.price.currencyCode,
+            discountedPrice: hasDiscount ? Number(variant.price.amount) : null,
+            size: variant.selectedOptions.find((opt: IndividualProductVariantType["selectedOptions"][0]) => opt.name === "Size")?.value || null
+          };
+        })
       }
     };
   } catch (error) {
@@ -347,38 +350,61 @@ const processResponse = (nodes: ShopifyProduct[]): HomeProduct[] => {
       .find(opt => opt.name === "Size");
     const sizes = sizeOption ? [sizeOption.value] : [];
 
-    const discountPrice = product.compareAtPriceRange?.minVariantPrice?.amount
+    // Check if there's a valid compareAtPrice
+    const hasDiscount = product.compareAtPriceRange?.minVariantPrice?.amount
+      && Number(product.compareAtPriceRange.minVariantPrice.amount) > 0;
+
+    // Swap prices if discount exists
+    const price = hasDiscount
       ? Number(product.compareAtPriceRange.minVariantPrice.amount)
+      : Number(product.priceRange.minVariantPrice.amount);
+
+    const discountedPrice = hasDiscount
+      ? Number(product.priceRange.minVariantPrice.amount)
       : 0;
 
     return {
       id: productId,
       title: product.title,
       inStock: product.availableForSale,
-      price: Number(product.priceRange.minVariantPrice.amount),
+      price,
       currency: product.priceRange.minVariantPrice.currencyCode,
       imageSrc: product.featuredImage?.url ?? '',
       imageAlt: product.featuredImage?.altText ?? product.title,
-      discountedPrice: discountPrice,
+      discountedPrice,
       type: product.productType,
       sizes
     };
   });
 };
 
-const homeProcessResponse = (response: {data: {products: {nodes: BestOrLatestProduct[]}}}): HomeProduct[] => {
+const homeProcessResponse = (response: { data: { products: { nodes: BestOrLatestProduct[] } } }): HomeProduct[] => {
   const products: HomeProduct[] = response.data.products.nodes.map((product: BestOrLatestProduct) => {
     const idParts = product.id.split("/");
     const productId = idParts[idParts.length - 1];
+
+    // Check if there's a valid compareAtPrice
+    const hasDiscount = product.compareAtPriceRange?.minVariantPrice?.amount
+      && Number(product.compareAtPriceRange.minVariantPrice.amount) > 0;
+
+    // Swap prices if discount exists
+    const price = hasDiscount
+      ? Number(product.compareAtPriceRange.minVariantPrice.amount)
+      : Number(product.priceRange.minVariantPrice.amount);
+
+    const discountedPrice = hasDiscount
+      ? Number(product.priceRange.minVariantPrice.amount)
+      : 0;
+
     return {
       id: productId,
       title: product.title,
       inStock: product.availableForSale,
-      price: Number(product.priceRange.minVariantPrice.amount),
+      price,
       currency: product.priceRange.minVariantPrice.currencyCode,
       imageSrc: product.featuredImage.url,
       imageAlt: product.featuredImage.altText,
-      discountedPrice: Number(product.compareAtPriceRange.minVariantPrice.amount),
+      discountedPrice,
     }
   });
   return products;
@@ -465,6 +491,7 @@ type IndividualProductResponseType = {
       {
         id: string,
         title: string,
+        currentlyNotInStock: boolean,
         inStock: boolean,
         price: number,
         currency: string,
@@ -484,6 +511,7 @@ type IndividualProductVariantType = {
   id: string,
   title: string,
   availableForSale: boolean,
+  currentlyNotInStock: boolean,
   price: {
     amount: string,
     currencyCode: string,

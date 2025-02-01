@@ -12,7 +12,7 @@ import Link from "next/link"
 import { useCart } from '@/contexts/cart';
 import { addToCart } from '@/actions/cart';
 import { toast } from 'sonner';
-import { ClipLoader} from "react-spinners"
+import { ClipLoader } from "react-spinners"
 
 //Local Types
 type VariantType = {
@@ -21,6 +21,7 @@ type VariantType = {
     inStock: boolean,
     price: number,
     currency: string,
+    currentlyNotInStock: boolean,
     discountedPrice: number | null;
     size: string | null
 }
@@ -43,6 +44,7 @@ type ProductType = {
             inStock: boolean,
             price: number,
             currency: string,
+            currentlyNotInStock: boolean,
             discountedPrice: number | null,
             size: string | null
         }
@@ -100,7 +102,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
     };
 
     const handleVariantChange = (size: string) => {
-        if(product) {
+        if (product) {
             const variant = product.variants.find((v: VariantType) => v.size === size);
             if (variant) {
                 setSelectedVariant(variant);
@@ -110,7 +112,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
 
     if (loading) {
         return <div className="p-4 flex justify-center items-center  w-full h-64">
-        <ClipLoader color="#000" size={30} />
+            <ClipLoader color="#000" size={30} />
         </div>
     }
     else if (error) {
@@ -143,7 +145,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                     </div>
 
                     <div className="grid grid-cols-4 gap-2">
-                        {product.images.map((image: {src: string, alt: string}, index: number) => (
+                        {product.images.map((image: { src: string, alt: string }, index: number) => (
                             <button
                                 key={index}
                                 onClick={() => setSelectedImageIndex(index)}
@@ -166,7 +168,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                         <div>
                             <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
                             <div className="flex items-center space-x-2">
-                                {selectedVariant.inStock ? (
+                                {(selectedVariant.inStock || selectedVariant.currentlyNotInStock) ? (
                                     <div className="text-sm p-1.5 border border-border text-center bg-background rounded-lg text-green-500">
                                         IN STOCK
                                     </div>
@@ -210,15 +212,15 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                                                 value={variant.size as string}
                                                 id={`size-${variant.size}`}
                                                 className="sr-only"
-                                                disabled={!variant.inStock}
+                                                disabled={!variant.inStock || variant.currentlyNotInStock}
                                             />
                                             <Label
                                                 htmlFor={`size-${variant.size}`}
                                                 className={`px-4 py-2 border rounded cursor-pointer ${selectedVariant.size === variant.size
-                                                        ? "border-primary bg-primary/10"
-                                                        : variant.inStock
-                                                            ? "border-input hover:bg-accent"
-                                                            : "border-input bg-muted cursor-not-allowed opacity-50"
+                                                    ? "border-primary bg-primary/10"
+                                                    : (variant.inStock || variant.currentlyNotInStock)
+                                                        ? "border-input hover:bg-accent"
+                                                        : "border-input bg-muted cursor-not-allowed opacity-50"
                                                     }`}
                                             >
                                                 {variant.size}
@@ -253,7 +255,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                     <div className="flex space-x-4">
                         <Button
                             className="flex-1 text-lg py-6 hover:opacity-70"
-                            disabled={!selectedVariant.inStock || isAddingToCart}
+                            disabled={!selectedVariant.inStock || isAddingToCart || selectedVariant.currentlyNotInStock}
                             onClick={handleAddToCart}
                         >
                             {isAddingToCart ? 'Adding...' : 'Add to cart'}
