@@ -11,8 +11,16 @@ import { getIndividualProduct } from "@/actions/products"
 import Link from "next/link"
 import { useCart } from '@/contexts/cart'
 import { addToCart } from '@/actions/cart'
-import { toast } from 'sonner'
 import { ClipLoader } from "react-spinners"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 //Local Types
 type VariantType = {
@@ -48,6 +56,8 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
     const [product, setProduct] = useState<ProductType | null>(null);
     const { cartId, refetchCart } = useCart();
     const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ title: '', description: '' });
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -56,7 +66,6 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
             try {
                 const response = await getIndividualProduct(resolvedParams.id);
                 setProduct(response.data);
-                // Set first variant as default if available
                 if (response.data.variants && response.data.variants.length > 0) {
                     setSelectedVariant(response.data.variants[0]);
                 }
@@ -79,12 +88,19 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
         try {
             await addToCart(cartId, selectedVariant.id, quantity);
             await refetchCart();
-            toast.success('Added to cart successfully');
+            setAlertMessage({
+                title: 'Success',
+                description: 'Item has been added to your cart successfully!'
+            });
         } catch (error) {
             console.error('Failed to add to cart', error);
-            toast.error('Failed to add to cart');
+            setAlertMessage({
+                title: 'Error',
+                description: 'Failed to add item to cart. Please try again.'
+            });
         } finally {
             setIsAddingToCart(false);
+            setAlertOpen(true);
         }
     };
 
@@ -113,13 +129,26 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
         return <div className="text-center font-bold text-xl">No product found</div>;
     }
 
-    // Group variants by size for easier rendering
     const availableSizes = product.variants
         .filter(variant => variant.title)
         .map(variant => variant.title);
 
     return (
         <div className="container mx-auto px-4 py-8">
+            <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{alertMessage.title}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {alertMessage.description}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction>OK</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             <div className="text-sm breadcrumbs mb-8">
                 <Link href="/" className="text-muted-foreground hover:text-primary">
                     E-Commerce
@@ -128,6 +157,7 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                 <span>{product.title}</span>
             </div>
 
+            {/* Rest of the component remains the same */}
             <div className="grid md:grid-cols-2 gap-8">
                 {/* Image Section */}
                 <div className="space-y-4">
@@ -220,10 +250,10 @@ export default function Component({ params }: { params: Promise<{ id: string }> 
                                                 <Label
                                                     htmlFor={`size-${size}`}
                                                     className={`px-4 py-2 border rounded cursor-pointer ${selectedVariant.title === size
-                                                            ? "border-primary bg-primary/10"
-                                                            : isAvailable
-                                                                ? "border-input hover:bg-accent"
-                                                                : "border-input bg-muted cursor-not-allowed opacity-50"
+                                                        ? "border-primary bg-primary/10"
+                                                        : isAvailable
+                                                            ? "border-input hover:bg-accent"
+                                                            : "border-input bg-muted cursor-not-allowed opacity-50"
                                                         }`}
                                                 >
                                                     {size}
