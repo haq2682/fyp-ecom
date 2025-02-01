@@ -80,7 +80,9 @@ export default function CartPage() {
             setCheckoutLoading(true);
             try {
                 const url = await cartAuthenticate(cart.id as string);
-                router.push(url);
+                setTimeout(() => {
+                    router.push(url);
+                }, 5000);
             }
             catch (error) {
                 console.error('Failed to checkout', error);
