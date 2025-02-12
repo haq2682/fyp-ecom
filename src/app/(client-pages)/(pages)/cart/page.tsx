@@ -80,7 +80,7 @@ export default function CartPage() {
             setCheckoutLoading(true);
             try {
                 const url = await cartAuthenticate(cart.id as string);
-                await new Promise((resolve) => {
+                await new Promise<void>((resolve) => {
                     setTimeout(() => {
                         router.push(url);
                         resolve();
