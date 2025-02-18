@@ -33,6 +33,17 @@ export default function CartPage() {
         if (cart) setCurrency(cart.lines.edges[0]?.node.merchandise.price.currencyCode);
     }, [cart]);
 
+    useEffect(() => {
+        async function authenticateCart() {
+            if (cart) {
+                setCheckoutLoading(true);
+                await cartAuthenticate(cart.id as string);
+                setCheckoutLoading(false);
+            }
+        }
+        authenticateCart();
+    }, [cart]);
+
     const handleUpdateQuantity = async (lineId: string, currentQuantity: number, increment: number) => {
         const newQuantity = currentQuantity + increment;
         if (newQuantity < 0) return;
