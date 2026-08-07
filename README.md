@@ -241,6 +241,10 @@ fyp-ecom/
 | `npm run lint` | Run ESLint |
 | `npm run migrate` | Run Prisma migrations and sync seed data (legacy schema only) |
 
+## Demo Video
+
+[Here is the demo video of the project](https://drive.google.com/file/d/1q0mJ7Gsc_ohaSuSUVuksGnJY219CHNvy/view?usp=sharing)
+
 ## Contributing
 
 1. Create a feature branch from `main`
