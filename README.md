@@ -18,7 +18,8 @@
 6. [Project / File Structure](#project--file-structure)
 7. [Architecture Notes](#architecture-notes)
 8. [Available Scripts](#available-scripts)
-9. [Contributing](#contributing)
+9. [Demo Video](#demo-video)
+10. [Contributing](#contributing)
 
 ---
 
